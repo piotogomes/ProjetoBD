@@ -1,20 +1,51 @@
+
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/pages/home/style.css">
-    <title>Gráfica</title>
+    <title>ProjetoBD - Home</title>
 </head>
 
 <body>
-    <div id="header"></div>
-    <h1>Bem Vindo Ao Mini Mundo da Gráfica</h1>
-    <script src="/components/header/header.js"></script>
-    <div class="containerPng">
-        <img src="/assets/grafica.png" alt="Imagem Gráfica" />
-    </div>
-</body>
 
+    <h1>Bem-vindo, {{ session["user_name"] }}!</h1>
+
+    <p>
+        Perfil: {{ session["perfil"] }}
+    </p>
+
+    <nav>
+
+        {% if session["perfil"] == "COORDENADOR" %}
+
+            <a href="/funcionarios">Funcionários</a>
+            <a href="/disciplinas">Disciplinas</a>
+            <a href="/atividades">Atividades</a>
+
+        {% elif session["perfil"] == "PROFESSOR" %}
+
+            <a href="/disciplinas">Disciplinas</a>
+
+        {% elif session["perfil"] == "RECREADOR" %}
+
+            <a href="/atividades">Atividades</a>
+
+        {% endif %}
+
+    </nav>
+
+    <form action="{{ url_for('auth.logout') }}" method="POST">
+
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token() }}"
+        >
+
+        <button type="submit">Sair</button>
+
+    </form>
+
+</body>
 </html>

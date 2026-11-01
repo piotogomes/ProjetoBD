@@ -1,4 +1,5 @@
 -- Tabelas Principais (Entidades Fortes)
+
 CREATE TABLE RESPONSAVEL (
     CPF VARCHAR(14) PRIMARY KEY,
     Nome VARCHAR(255) NOT NULL,
@@ -22,7 +23,9 @@ CREATE TABLE DISCIPLINA (
 CREATE TABLE FUNCIONARIO (
     CPF VARCHAR(14) PRIMARY KEY,
     Nome VARCHAR(255) NOT NULL,
-    Endereco VARCHAR(255)
+    Endereco VARCHAR(255),
+    Senha_Hash VARCHAR(255) NOT NULL,
+    Ativo BOOLEAN DEFAULT TRUE
 );
 
 CREATE TABLE ATIVIDADE (
@@ -40,7 +43,7 @@ CREATE TABLE ALUNO_INTERESSE (
     FOREIGN KEY (CPF_Aluno) REFERENCES ALUNO(CPF) ON DELETE CASCADE
 );
 
-CREATE TABLE ALUNO_CUIDADO (
+CREATE TABLE ALUNO_NECESSIDADE (
     CPF_Aluno VARCHAR(14),
     Cuidado_Especial VARCHAR(255),
     PRIMARY KEY (CPF_Aluno, Cuidado_Especial),
@@ -103,11 +106,11 @@ CREATE TABLE MATRICULA (
 );
 
 CREATE TABLE OFERECIMENTO (
-    ID_Oferecimento INT AUTO_INCREMENT PRIMARY KEY,
     Cod_Disciplina VARCHAR(50) NOT NULL,
     Data_Inicio DATE,
     Data_Fim DATE,
     Hora_Inicio TIME,
+    PRIMARY KEY (Cod_Disciplina, Data_Inicio, Data_Fim),
     FOREIGN KEY (Cod_Disciplina) REFERENCES DISCIPLINA(Cod) ON DELETE CASCADE
 );
 
@@ -121,10 +124,12 @@ CREATE TABLE PARTICIPACAO (
 );
 
 CREATE TABLE MINISTRA_OFERECIMENTO (
-    ID_Oferecimento INT NOT NULL,
+    Cod_Disciplina VARCHAR(50) NOT NULL,
+    Data_Inicio DATE NOT NULL,
+    Data_Fim DATE NOT NULL,
     CPF_Professor VARCHAR(14) NOT NULL,
-    PRIMARY KEY (ID_Oferecimento, CPF_Professor),
-    FOREIGN KEY (ID_Oferecimento) REFERENCES OFERECIMENTO(ID_Oferecimento) ON DELETE CASCADE,
+    PRIMARY KEY (Cod_Disciplina, Data_Inicio, Data_Fim, CPF_Professor),
+    FOREIGN KEY (Cod_Disciplina, Data_Inicio, Data_Fim) REFERENCES OFERECIMENTO(Cod_Disciplina, Data_Inicio, Data_Fim) ON DELETE CASCADE,
     FOREIGN KEY (CPF_Professor) REFERENCES PROFESSOR(CPF_Funcionario) ON DELETE CASCADE
 );
 

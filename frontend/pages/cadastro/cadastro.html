@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - ProjetoBD</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='pages/login/login.css') }}">
+</head>
+<body>
+    <main class="login-container">
+        <div class="login-card">
+            <h1>Cadastrar</h1>
+            
+            {% with mensagens = get_flashed_messages() %}
+                {% if mensagens %}
+                    {% for mensagem in mensagens %}
+                        <div class="erro">{{ mensagem }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('cadastro.registrar') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="form-group">
+                    <label for="cpf">CPF*</label>
+                    <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="nome">Nome*</label>
+                    <input type="text" id="nome" name="nome" placeholder="Nome Completo" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="endereco">Endereço</label>
+                    <input type="text" id="endereco" name="endereco" placeholder="Rua, Número, Bairro">
+                </div>
+
+                <div class="form-group">
+                    <label for="senha">Senha*</label>
+                    <input type="password" id="senha" name="senha" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Tipo de Funcionário (selecione pelo menos um)*</label>
+                    <div style="display: flex; gap: 15px; margin-top: 5px;">
+                        <label>
+                            <input type="checkbox" name="perfil" value="COORDENADOR"> Coordenador
+                        </label>
+                        <label>
+                            <input type="checkbox" name="perfil" value="PROFESSOR"> Professor
+                        </label>
+                        <label>
+                            <input type="checkbox" name="perfil" value="RECREADOR"> Recreador
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-login">Cadastrar</button>
+                <div style="margin-top: 15px; text-align: center;">
+                    <a href="{{ url_for('auth.login') }}">Voltar para o Login</a>
+                </div>
+            </form>
+        </div>
+    </main>
+</body>
+</html>
