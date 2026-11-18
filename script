@@ -1,3 +1,7 @@
+-- =====================================================================
+-- PARTE 1: CRIAÇÃO DAS TABELAS
+-- =====================================================================
+
 -- Tabelas Principais (Entidades Fortes)
 
 CREATE TABLE RESPONSAVEL (
@@ -146,7 +150,7 @@ CREATE TABLE MINISTRA_ATIVIDADE (
 CREATE TABLE AVALIA_PROFESSOR (
     CPF_Coordenador VARCHAR(14),
     CPF_Professor VARCHAR(14),
-	Data_Avaliacao DATE,
+    Data_Avaliacao DATE,
     Nota_Recebida DECIMAL(5,2),
     PRIMARY KEY (CPF_Coordenador, CPF_Professor, Data_Avaliacao),
     FOREIGN KEY (CPF_Coordenador) REFERENCES COORDENADOR(CPF_Funcionario) ON DELETE CASCADE,
@@ -173,3 +177,457 @@ CREATE TABLE CONTATO (
     FOREIGN KEY (CPF_Coordenador) REFERENCES COORDENADOR(CPF_Funcionario) ON DELETE CASCADE,
     FOREIGN KEY (CPF_Responsavel) REFERENCES RESPONSAVEL(CPF) ON DELETE CASCADE
 );
+
+
+-- =====================================================================
+-- PARTE 2: POPULAÇÃO COM DADOS FICTÍCIOS
+-- Convenção dos CPFs (todos fictícios):
+--   100.000.000-xx  Coordenadores            (2)
+--   200.000.000-xx  Professores              (6)
+--   300.000.000-xx  Professores/Recreadores  (2)  -> duas funções
+--   400.000.000-xx  Recreadores              (12)
+--   500.000.000-xx  Responsáveis             (20)
+--   600.000.000-xx  Alunos                   (30)
+-- =====================================================================
+
+-- ---------------------------------------------------------------------
+-- FUNCIONÁRIOS (22 no total). Senha_Hash gerado com werkzeug.security.generate_password_hash.
+-- Senhas: Coordenador=coord123 | Professor=prof123 | Prof/Recreador=profrec123 | Recreador=recre123
+-- ---------------------------------------------------------------------
+INSERT INTO FUNCIONARIO (CPF, Nome, Endereco, Senha_Hash, Ativo) VALUES
+-- Coordenadores
+('100.000.000-01', 'Helena Barros',      'Rua das Acácias, 120 - Vila Mariana, São Paulo/SP',   'scrypt:32768:8:1$z70yntDRluSi8LRS$2a885206a9415e857a65717900c50e708c3157be2178763589ce68afb057112b1ace413c5320e9311d2db15429e881d2e51762f1bf407e1d995ef683d988870e', TRUE),
+('100.000.000-02', 'Ricardo Tavares',    'Av. Paulista, 1500, ap. 52 - Bela Vista, São Paulo/SP', 'scrypt:32768:8:1$Y6hjpICYNFdJ67YC$95a35e8b0428328514a123f4b7fb665734b4bdb1cf50b8eb925c83ee6b6f6a2a4d3711b3c3dc2af21f88f20e8f0c32fbcdc5cf7c0cc3cb80e1fbda6b3f7866ba', TRUE),
+-- Professores
+('200.000.000-01', 'Marina Oliveira',    'Rua Augusta, 800 - Consolação, São Paulo/SP',          'scrypt:32768:8:1$4cUae9Y3e0LWAaCC$e61693e4e9bb69686357af7c62c12682daa472fc11143ee719ac6f149ac9f061f6623670e6b1508de9a58e4f92ae1135334c1d2d79296c9e214482bb812f23a5', TRUE),
+('200.000.000-02', 'José Antunes',       'Rua Vergueiro, 2300 - Vila Mariana, São Paulo/SP',     'scrypt:32768:8:1$dqTq9Nm6UoZvdao7$89b0577a154b721da56f6f0cfe74de9719f30b04e53aa4098d3df1f5069e8fc093329e2091a8bb31993bec4be08d439824b6c09c3ab962c3d4bc7433cb0af20e', TRUE),
+('200.000.000-03', 'Camila Duarte',      'Rua Tutóia, 450 - Paraíso, São Paulo/SP',              'scrypt:32768:8:1$WgnwO2eCohFa2xk9$49d4d3bcef6b66d475e73a0da1444f5b8f6dc330d8d7d6803791f23fdfd2926e91b193b2012dd08c8c5fa06258b92da06969d817b769bdf4b7e95bfb90b2d39e', TRUE),
+('200.000.000-04', 'Fernando Lopes',     'Rua Domingos de Morais, 975 - Vila Mariana, São Paulo/SP', 'scrypt:32768:8:1$6D348RERyQC2YJ6q$7add70b743108382f16f6fd80ef103784d3ad1d6bd59f46e846d916e386f76018f9bad5cc508912f96d677b6c36eaa14435a26de969c4e2a129b72b6eb976e15', TRUE),
+('200.000.000-05', 'Luciana Prado',      'Rua Pamplona, 310 - Jardim Paulista, São Paulo/SP',    'scrypt:32768:8:1$iyQdKGNoCN9zzS4v$f0693706a9755ddd4a67dc6bce93d8a1bc138d5c6aa2ba9bfec7076210d6c23d4b3466ff12b0d1e6b2a0cfbfe5c6043f19ab9c363471172c32269a61e53de240', TRUE),
+('200.000.000-06', 'Rodrigo Siqueira',   'Rua Loefgren, 1200 - Vila Clementino, São Paulo/SP',   'scrypt:32768:8:1$ulKMLvev3uBDZBeH$42fc55a327248964b6e8dec856c22a39c3d9ce8ad6c82fa57d537ab0b8d82c9a692236927dc85a826ba17ca77aea85cd7f1c30622daaa7bab684221e4847058e', TRUE),
+-- Professores que também são Recreadores
+('300.000.000-01', 'Tatiane Moura',      'Rua Itapeva, 66 - Bela Vista, São Paulo/SP',           'scrypt:32768:8:1$e5hZ5XXzMG0Xaxiu$1ebaf737e2e13d46d9a691488edc79fb3e64517e912397b65c33aa0c74c6e683259cdb1a1ae58ba8a103d8d82a5aaf4268c4b543ac1c29b0d2d9ced8b91cd0e5', TRUE),
+('300.000.000-02', 'Bruno Castro',       'Rua Vergueiro, 3100 - Vila Mariana, São Paulo/SP',     'scrypt:32768:8:1$wKeHhXizEd5uOjKr$9067934fe12d470555104168e2c47f45aa5c3093d8afcb6034e0cac1c12cf219cb92cd46dc76dd0fdf3e136a4bcc18e3c76e5b0c70630967cbbe80cead244566', TRUE),
+-- Recreadores
+('400.000.000-01', 'Aline Freitas',      'Rua Pelotas, 250 - Vila Mariana, São Paulo/SP',        'scrypt:32768:8:1$II4QRQ6gdxdMIv0D$d5cd5a3b4b0307d68ad56b6d36f535c240284c7978fe2fdb134540867ca30981af68700a00f7c1018f30b52583d97f4a8ee7f799f74ee63ff6ce69d994529884', TRUE),
+('400.000.000-02', 'Diego Santana',      'Rua Humberto I, 410 - Vila Mariana, São Paulo/SP',     'scrypt:32768:8:1$ObJs85ksfC2VWzvS$fb157331ec7ccd4da9de7e0220833efd310ca7494618389e69d6cf8bec09fd336816670897964b51ccb04f919f78d2c53d1b93ecc1440494e8e723bcf2635632', TRUE),
+('400.000.000-03', 'Carolina Vieira',    'Rua Domingos de Morais, 1800 - Vila Mariana, São Paulo/SP', 'scrypt:32768:8:1$vd6wQewm0ZLE3feD$87945c124003a5096a9a8b3c0af6c554ffc1e2c00848efdf1a33341f89c77d347d7cda8fc94756d66c6d68a436c386308b667fad2546e93938b9bbfcaa1de8dd', TRUE),
+('400.000.000-04', 'Felipe Nogueira',    'Av. Jabaquara, 900 - Mirandópolis, São Paulo/SP',      'scrypt:32768:8:1$X1exURTbTZK948tW$374e53a94aa4e6e37c3e3d3cf74f0965e69c721800254005da551f6d7c7683539b9d899bf2351697302ccbae63f21507bf0c6fffdb345f31b734cf6ab72cbaba', TRUE),
+('400.000.000-05', 'Gabriela Pinto',     'Rua Joaquim Távora, 700 - Vila Mariana, São Paulo/SP', 'scrypt:32768:8:1$Yoa6TnOBZ1fa5YDA$d39361d3188b00ab1e604275fa4125af6743ed9eeff737ba0e95b9dd788e7b2aa7dd5ab97f86f7cdcd645ae44c2a7767af24e5288a5c77518d050f55de7fd9c8', TRUE),
+('400.000.000-06', 'Henrique Azevedo',   'Rua Sena Madureira, 1100 - Vila Mariana, São Paulo/SP', 'scrypt:32768:8:1$CNZnGgPTJDWe4VmM$9ba3f987e7cde7f6ec2a1d1a74411a26fc588a2ae483fa223f0010300e4a2da330ee58e52104490d7a8cc25f43fc1fddb0bd8b31ad3db28d54d5ad73cc3fbf51', TRUE),
+('400.000.000-07', 'Isadora Campos',     'Rua Vergueiro, 1700 - Liberdade, São Paulo/SP',        'scrypt:32768:8:1$pz1J6qhjrqy5nXQa$2ccc27d97910fdebb9b11b545cd869db1709fd0bf700bbcbcc09aa19ff2bd665d2d1c7d7e21b4e259b21132e249a75815baa4b55bdb2f56d1336637a0d0866c8', TRUE),
+('400.000.000-08', 'João Vitor Batista', 'Rua Teodoro Sampaio, 520 - Pinheiros, São Paulo/SP',   'scrypt:32768:8:1$PX9VBszZXaI9T8qK$9631fbe4821dfcfd40ef24913edd2944d29e34a2f7a3b358d442570feada5a74f74f9df7a6f25a2462706b826f327a3401a9ac8eb1878c4753943d6b1e77f28b', TRUE),
+('400.000.000-09', 'Karina Monteiro',    'Rua Cardeal Arcoverde, 880 - Pinheiros, São Paulo/SP', 'scrypt:32768:8:1$8JbcXDDkKWU4MxqJ$cef3e68d405eae6e922a158ff7669a3633afbd7c02836211ca4a423dc2633644427ecc6a4dbeca4788064ae4d4f446493d6617dd771b4212b703133a75f510a0', TRUE),
+('400.000.000-10', 'Leonardo Farias',    'Rua dos Pinheiros, 1300 - Pinheiros, São Paulo/SP',    'scrypt:32768:8:1$0g0UUJJLU9FYTtJe$34aa44ca08fb254d95e1cf43aadc238e0c9972c986c629648ff4b89bc3f264888ebb5221624081d72b3e8714cb5a8131e41c7f36f9b3073e994302409b0a9d12', TRUE),
+('400.000.000-11', 'Mariana Esteves',    'Rua Cubatão, 330 - Paraíso, São Paulo/SP',             'scrypt:32768:8:1$tPqMts3sE31Hz36Y$fa5acd6e1877cb8d4d61e94b3bad5f71e9249c6bd0140dd6201d3691038682d550c7c87c9d5d27fcee96a2b6651ddd0ef420dc1bae7da9e7b4332bf0d05f1db2', TRUE),
+('400.000.000-12', 'Nathan Borges',      'Rua Machado Bittencourt, 215 - Vila Clementino, São Paulo/SP', 'scrypt:32768:8:1$xTVXOC8Nxvezqtoe$d69fb4d471522d0209da05d2721ffe18e7ec37196f9309b20c6a692d5e6c2938bd5b82d1739a224a47ed5d423e6eb134ad81362e643d883a72c0b7ddb3f572cf', FALSE);
+
+-- Subclasses
+INSERT INTO COORDENADOR (CPF_Funcionario) VALUES
+('100.000.000-01'), ('100.000.000-02');
+
+INSERT INTO PROFESSOR (CPF_Funcionario) VALUES
+('200.000.000-01'), ('200.000.000-02'), ('200.000.000-03'),
+('200.000.000-04'), ('200.000.000-05'), ('200.000.000-06'),
+('300.000.000-01'), ('300.000.000-02');   -- os dois últimos também são recreadores
+
+INSERT INTO RECREADOR (CPF_Funcionario) VALUES
+('300.000.000-01'), ('300.000.000-02'),   -- professores/recreadores
+('400.000.000-01'), ('400.000.000-02'), ('400.000.000-03'), ('400.000.000-04'),
+('400.000.000-05'), ('400.000.000-06'), ('400.000.000-07'), ('400.000.000-08'),
+('400.000.000-09'), ('400.000.000-10'), ('400.000.000-11'), ('400.000.000-12');
+
+INSERT INTO FUNCIONARIO_TELEFONE (CPF_Funcionario, Telefone) VALUES
+('100.000.000-01', '(11) 99100-0001'), ('100.000.000-01', '(11) 3200-0001'),
+('100.000.000-02', '(11) 99100-0002'),
+('200.000.000-01', '(11) 99200-0001'),
+('200.000.000-02', '(11) 99200-0002'), ('200.000.000-02', '(11) 3300-0002'),
+('200.000.000-03', '(11) 99200-0003'),
+('200.000.000-04', '(11) 99200-0004'),
+('200.000.000-05', '(11) 99200-0005'), ('200.000.000-05', '(11) 3300-0005'),
+('200.000.000-06', '(11) 99200-0006'),
+('300.000.000-01', '(11) 99300-0001'), ('300.000.000-01', '(11) 3400-0001'),
+('300.000.000-02', '(11) 99300-0002'),
+('400.000.000-01', '(11) 99400-0001'),
+('400.000.000-02', '(11) 99400-0002'),
+('400.000.000-03', '(11) 99400-0003'),
+('400.000.000-04', '(11) 99400-0004'), ('400.000.000-04', '(11) 3500-0004'),
+('400.000.000-05', '(11) 99400-0005'),
+('400.000.000-06', '(11) 99400-0006'),
+('400.000.000-07', '(11) 99400-0007'),
+('400.000.000-08', '(11) 99400-0008'),
+('400.000.000-09', '(11) 99400-0009'), ('400.000.000-09', '(11) 3500-0009'),
+('400.000.000-10', '(11) 99400-0010'),
+('400.000.000-11', '(11) 99400-0011'),
+('400.000.000-12', '(11) 99400-0012');
+
+INSERT INTO FUNCIONARIO_DISPONIBILIDADE (CPF_Funcionario, Disponibilidade) VALUES
+('100.000.000-01', 'Segunda a Sexta - Manhã'),
+('100.000.000-01', 'Segunda a Sexta - Tarde'),
+('100.000.000-02', 'Segunda a Sexta - Tarde'),
+('200.000.000-01', 'Segunda e Quarta - Manhã'),
+('200.000.000-02', 'Terça e Quinta - Manhã'),
+('200.000.000-03', 'Segunda e Quarta - Tarde'),
+('200.000.000-04', 'Terça e Quinta - Tarde'),
+('200.000.000-05', 'Sexta - Manhã'),
+('200.000.000-05', 'Sexta - Tarde'),
+('200.000.000-06', 'Quarta e Sexta - Manhã'),
+('300.000.000-01', 'Segunda e Quarta - Manhã'),
+('300.000.000-01', 'Quinta - Tarde'),
+('300.000.000-02', 'Terça e Quinta - Manhã'),
+('300.000.000-02', 'Sexta - Tarde'),
+('400.000.000-01', 'Segunda - Tarde'),
+('400.000.000-02', 'Segunda - Tarde'),
+('400.000.000-03', 'Terça - Manhã'),
+('400.000.000-04', 'Terça - Manhã'),
+('400.000.000-05', 'Quarta - Tarde'),
+('400.000.000-06', 'Quarta - Tarde'),
+('400.000.000-07', 'Quinta - Tarde'),
+('400.000.000-08', 'Sexta - Manhã'),
+('400.000.000-09', 'Sexta - Manhã'),
+('400.000.000-10', 'Segunda - Manhã'),
+('400.000.000-11', 'Terça - Manhã'),
+('400.000.000-12', 'Terça - Manhã');
+
+-- ---------------------------------------------------------------------
+-- RESPONSÁVEIS (20)
+-- ---------------------------------------------------------------------
+INSERT INTO RESPONSAVEL (CPF, Nome, Telefone, Endereco) VALUES
+('500.000.000-01', 'Marcos Almeida',     '(11) 98101-0001', 'Rua Sena Madureira, 100 - Vila Mariana, São Paulo/SP'),
+('500.000.000-02', 'Patrícia Souza',     '(11) 98101-0002', 'Rua Pelotas, 45 - Vila Mariana, São Paulo/SP'),
+('500.000.000-03', 'Roberto Lima',       '(11) 98101-0003', 'Rua Humberto I, 780 - Vila Mariana, São Paulo/SP'),
+('500.000.000-04', 'Fernanda Costa',     '(11) 98101-0004', 'Rua Vergueiro, 2900 - Vila Mariana, São Paulo/SP'),
+('500.000.000-05', 'Carlos Pereira',     '(11) 98101-0005', 'Rua Tutóia, 99 - Paraíso, São Paulo/SP'),
+('500.000.000-06', 'Juliana Rodrigues',  '(11) 98101-0006', 'Rua Domingos de Morais, 2100 - Vila Mariana, São Paulo/SP'),
+('500.000.000-07', 'André Martins',      '(11) 98101-0007', 'Av. Jabaquara, 1500 - Mirandópolis, São Paulo/SP'),
+('500.000.000-08', 'Camila Ferreira',    '(11) 98101-0008', 'Rua Loefgren, 640 - Vila Clementino, São Paulo/SP'),
+('500.000.000-09', 'Ricardo Barbosa',    '(11) 98101-0009', 'Rua Joaquim Távora, 1200 - Vila Mariana, São Paulo/SP'),
+('500.000.000-10', 'Simone Carvalho',    '(11) 98101-0010', 'Rua Cubatão, 560 - Paraíso, São Paulo/SP'),
+('500.000.000-11', 'Eduardo Ribeiro',    '(11) 98101-0011', 'Rua Machado Bittencourt, 77 - Vila Clementino, São Paulo/SP'),
+('500.000.000-12', 'Aline Gomes',        '(11) 98101-0012', 'Rua Pamplona, 1010 - Jardim Paulista, São Paulo/SP'),
+('500.000.000-13', 'Thiago Nascimento',  '(11) 98101-0013', 'Rua Augusta, 1900 - Consolação, São Paulo/SP'),
+('500.000.000-14', 'Renata Araújo',      '(11) 98101-0014', 'Rua Itapeva, 300 - Bela Vista, São Paulo/SP'),
+('500.000.000-15', 'Fábio Mendes',       '(11) 98101-0015', 'Rua Teodoro Sampaio, 1450 - Pinheiros, São Paulo/SP'),
+('500.000.000-16', 'Daniela Rocha',      '(11) 98101-0016', 'Rua Cardeal Arcoverde, 2000 - Pinheiros, São Paulo/SP'),
+('500.000.000-17', 'Leandro Teixeira',   '(11) 98101-0017', 'Rua dos Pinheiros, 420 - Pinheiros, São Paulo/SP'),
+('500.000.000-18', 'Vanessa Cardoso',    '(11) 98101-0018', 'Rua Vergueiro, 1250 - Liberdade, São Paulo/SP'),
+('500.000.000-19', 'Paulo Moreira',      '(11) 98101-0019', 'Rua Sena Madureira, 850 - Vila Mariana, São Paulo/SP'),
+('500.000.000-20', 'Cláudia Dias',       '(11) 98101-0020', 'Rua Pelotas, 600 - Vila Mariana, São Paulo/SP');
+
+-- ---------------------------------------------------------------------
+-- ALUNOS (30) - irmãos compartilham o mesmo endereço do responsável
+-- ---------------------------------------------------------------------
+INSERT INTO ALUNO (CPF, Nome, Data_Nasc, Endereco, Escolaridade) VALUES
+('600.000.000-01', 'Lucas Almeida',        '2014-03-12', 'Rua Sena Madureira, 100 - Vila Mariana, São Paulo/SP', '7º ano do Fundamental'),
+('600.000.000-02', 'Beatriz Almeida',      '2016-07-25', 'Rua Sena Madureira, 100 - Vila Mariana, São Paulo/SP', '5º ano do Fundamental'),
+('600.000.000-03', 'Gabriel Souza',        '2013-05-02', 'Rua Pelotas, 45 - Vila Mariana, São Paulo/SP', '8º ano do Fundamental'),
+('600.000.000-04', 'Larissa Souza',        '2015-09-18', 'Rua Pelotas, 45 - Vila Mariana, São Paulo/SP', '6º ano do Fundamental'),
+('600.000.000-05', 'Pedro Lima',           '2012-11-30', 'Rua Humberto I, 780 - Vila Mariana, São Paulo/SP', '9º ano do Fundamental'),
+('600.000.000-06', 'Júlia Lima',           '2014-01-22', 'Rua Humberto I, 780 - Vila Mariana, São Paulo/SP', '7º ano do Fundamental'),
+('600.000.000-07', 'Mateus Costa',         '2017-04-09', 'Rua Vergueiro, 2900 - Vila Mariana, São Paulo/SP', '3º ano do Fundamental'),
+('600.000.000-08', 'Sofia Costa',          '2018-08-14', 'Rua Vergueiro, 2900 - Vila Mariana, São Paulo/SP', '2º ano do Fundamental'),
+('600.000.000-09', 'Davi Pereira',         '2015-02-27', 'Rua Tutóia, 99 - Paraíso, São Paulo/SP', '6º ano do Fundamental'),
+('600.000.000-10', 'Laura Pereira',        '2017-10-05', 'Rua Tutóia, 99 - Paraíso, São Paulo/SP', '4º ano do Fundamental'),
+('600.000.000-11', 'Enzo Rodrigues',       '2016-06-16', 'Rua Domingos de Morais, 2100 - Vila Mariana, São Paulo/SP', '5º ano do Fundamental'),
+('600.000.000-12', 'Valentina Rodrigues',  '2018-03-03', 'Rua Domingos de Morais, 2100 - Vila Mariana, São Paulo/SP', '1º ano do Fundamental'),
+('600.000.000-13', 'Heitor Martins',       '2013-12-11', 'Av. Jabaquara, 1500 - Mirandópolis, São Paulo/SP', '8º ano do Fundamental'),
+('600.000.000-14', 'Alice Martins',        '2015-07-07', 'Av. Jabaquara, 1500 - Mirandópolis, São Paulo/SP', '6º ano do Fundamental'),
+('600.000.000-15', 'Theo Ferreira',        '2017-01-19', 'Rua Loefgren, 640 - Vila Clementino, São Paulo/SP', '4º ano do Fundamental'),
+('600.000.000-16', 'Helena Ferreira',      '2019-05-28', 'Rua Loefgren, 640 - Vila Clementino, São Paulo/SP', 'Educação Infantil (Pré-escola)'),
+('600.000.000-17', 'Arthur Barbosa',       '2014-09-09', 'Rua Joaquim Távora, 1200 - Vila Mariana, São Paulo/SP', '7º ano do Fundamental'),
+('600.000.000-18', 'Manuela Barbosa',      '2016-11-21', 'Rua Joaquim Távora, 1200 - Vila Mariana, São Paulo/SP', '5º ano do Fundamental'),
+('600.000.000-19', 'Miguel Carvalho',      '2012-04-15', 'Rua Cubatão, 560 - Paraíso, São Paulo/SP', '9º ano do Fundamental'),
+('600.000.000-20', 'Isabela Carvalho',     '2013-08-08', 'Rua Cubatão, 560 - Paraíso, São Paulo/SP', '8º ano do Fundamental'),
+('600.000.000-21', 'Rafael Ribeiro',       '2015-12-01', 'Rua Machado Bittencourt, 77 - Vila Clementino, São Paulo/SP', '6º ano do Fundamental'),
+('600.000.000-22', 'Clara Gomes',          '2016-03-17', 'Rua Pamplona, 1010 - Jardim Paulista, São Paulo/SP', '5º ano do Fundamental'),
+('600.000.000-23', 'Bernardo Nascimento',  '2017-06-30', 'Rua Augusta, 1900 - Consolação, São Paulo/SP', '3º ano do Fundamental'),
+('600.000.000-24', 'Lívia Araújo',         '2014-10-26', 'Rua Itapeva, 300 - Bela Vista, São Paulo/SP', '7º ano do Fundamental'),
+('600.000.000-25', 'Samuel Mendes',        '2018-02-12', 'Rua Teodoro Sampaio, 1450 - Pinheiros, São Paulo/SP', '2º ano do Fundamental'),
+('600.000.000-26', 'Maria Eduarda Rocha',  '2015-05-05', 'Rua Cardeal Arcoverde, 2000 - Pinheiros, São Paulo/SP', '6º ano do Fundamental'),
+('600.000.000-27', 'Nicolas Teixeira',     '2016-09-29', 'Rua dos Pinheiros, 420 - Pinheiros, São Paulo/SP', '5º ano do Fundamental'),
+('600.000.000-28', 'Yasmin Cardoso',       '2013-07-14', 'Rua Vergueiro, 1250 - Liberdade, São Paulo/SP', '8º ano do Fundamental'),
+('600.000.000-29', 'Gustavo Moreira',      '2017-12-23', 'Rua Sena Madureira, 850 - Vila Mariana, São Paulo/SP', '3º ano do Fundamental'),
+('600.000.000-30', 'Luiza Dias',           '2018-11-06', 'Rua Pelotas, 600 - Vila Mariana, São Paulo/SP', '1º ano do Fundamental');
+
+-- Vínculo Responsável x Aluno
+INSERT INTO POSSUI_RESP_ALUNO (CPF_Responsavel, CPF_Aluno) VALUES
+('500.000.000-01', '600.000.000-01'), ('500.000.000-01', '600.000.000-02'),
+('500.000.000-02', '600.000.000-03'), ('500.000.000-02', '600.000.000-04'),
+('500.000.000-03', '600.000.000-05'), ('500.000.000-03', '600.000.000-06'),
+('500.000.000-04', '600.000.000-07'), ('500.000.000-04', '600.000.000-08'),
+('500.000.000-05', '600.000.000-09'), ('500.000.000-05', '600.000.000-10'),
+('500.000.000-06', '600.000.000-11'), ('500.000.000-06', '600.000.000-12'),
+('500.000.000-07', '600.000.000-13'), ('500.000.000-07', '600.000.000-14'),
+('500.000.000-08', '600.000.000-15'), ('500.000.000-08', '600.000.000-16'),
+('500.000.000-09', '600.000.000-17'), ('500.000.000-09', '600.000.000-18'),
+('500.000.000-10', '600.000.000-19'), ('500.000.000-10', '600.000.000-20'),
+('500.000.000-11', '600.000.000-21'),
+('500.000.000-12', '600.000.000-22'),
+('500.000.000-13', '600.000.000-23'),
+('500.000.000-14', '600.000.000-24'),
+('500.000.000-15', '600.000.000-25'),
+('500.000.000-16', '600.000.000-26'),
+('500.000.000-17', '600.000.000-27'),
+('500.000.000-18', '600.000.000-28'),
+('500.000.000-19', '600.000.000-29'),
+('500.000.000-20', '600.000.000-30'),
+-- Responsáveis secundários (ex.: outro familiar), demonstrando N:N
+('500.000.000-12', '600.000.000-23'),
+('500.000.000-14', '600.000.000-25');
+
+INSERT INTO ALUNO_INTERESSE (CPF_Aluno, Interesse) VALUES
+('600.000.000-01', 'Futebol'),          ('600.000.000-01', 'Videogames'),
+('600.000.000-02', 'Desenho'),          ('600.000.000-02', 'Dança'),
+('600.000.000-03', 'Música'),           ('600.000.000-03', 'Violão'),
+('600.000.000-04', 'Teatro'),
+('600.000.000-05', 'Futebol'),          ('600.000.000-05', 'Robótica'),
+('600.000.000-06', 'Leitura'),          ('600.000.000-06', 'Pintura'),
+('600.000.000-07', 'Dinossauros'),
+('600.000.000-08', 'Contação de Histórias'),
+('600.000.000-09', 'Jogos de Tabuleiro'), ('600.000.000-09', 'Xadrez'),
+('600.000.000-10', 'Dança'),
+('600.000.000-11', 'Capoeira'),
+('600.000.000-12', 'Pintura'),          ('600.000.000-12', 'Massinha'),
+('600.000.000-13', 'Basquete'),
+('600.000.000-14', 'Música'),           ('600.000.000-14', 'Flauta'),
+('600.000.000-15', 'Horta'),            ('600.000.000-15', 'Animais'),
+('600.000.000-16', 'Contação de Histórias'),
+('600.000.000-17', 'Capoeira'),         ('600.000.000-17', 'Futebol'),
+('600.000.000-18', 'Teatro'),           ('600.000.000-18', 'Leitura'),
+('600.000.000-19', 'Robótica'),         ('600.000.000-19', 'Videogames'),
+('600.000.000-20', 'Fotografia'),
+('600.000.000-21', 'Futebol'),
+('600.000.000-22', 'Desenho'),          ('600.000.000-22', 'Leitura'),
+('600.000.000-23', 'Jogos de Tabuleiro'),
+('600.000.000-24', 'Música'),           ('600.000.000-24', 'Teatro'),
+('600.000.000-25', 'Horta'),
+('600.000.000-26', 'Pintura'),
+('600.000.000-27', 'Xadrez'),           ('600.000.000-27', 'Ciências'),
+('600.000.000-28', 'Dança'),            ('600.000.000-28', 'Música'),
+('600.000.000-29', 'Dinossauros'),      ('600.000.000-29', 'Futebol'),
+('600.000.000-30', 'Contação de Histórias');
+
+INSERT INTO ALUNO_NECESSIDADE (CPF_Aluno, Cuidado_Especial) VALUES
+('600.000.000-02', 'Alergia a amendoim'),
+('600.000.000-05', 'Asma - necessita de bombinha'),
+('600.000.000-07', 'Intolerância à lactose'),
+('600.000.000-10', 'Miopia - sentar nas primeiras carteiras'),
+('600.000.000-12', 'Alergia a corantes alimentares'),
+('600.000.000-16', 'Acompanhamento fonoaudiológico'),
+('600.000.000-16', 'Alergia a picada de inseto'),
+('600.000.000-19', 'Transtorno do Espectro Autista - rotina estruturada'),
+('600.000.000-23', 'TDAH - pausas curtas entre as tarefas'),
+('600.000.000-27', 'Diabetes tipo 1 - monitorar glicemia'),
+('600.000.000-30', 'Alergia a glúten');
+
+-- ---------------------------------------------------------------------
+-- DISCIPLINAS, OFERECIMENTOS e PROFESSORES
+-- ---------------------------------------------------------------------
+INSERT INTO DISCIPLINA (Cod, Nome) VALUES
+('MAT01', 'Matemática'),
+('POR01', 'Língua Portuguesa'),
+('CIE01', 'Ciências'),
+('HIS01', 'História'),
+('GEO01', 'Geografia'),
+('ING01', 'Inglês'),
+('ART01', 'Artes'),
+('INF01', 'Informática Básica');
+
+-- Dois oferecimentos por disciplina: 1º e 2º semestre de 2026
+INSERT INTO OFERECIMENTO (Cod_Disciplina, Data_Inicio, Data_Fim, Hora_Inicio) VALUES
+('MAT01', '2026-02-02', '2026-06-30', '08:00:00'),
+('MAT01', '2026-08-03', '2026-12-11', '08:00:00'),
+('POR01', '2026-02-02', '2026-06-30', '09:00:00'),
+('POR01', '2026-08-03', '2026-12-11', '09:00:00'),
+('CIE01', '2026-02-02', '2026-06-30', '10:00:00'),
+('CIE01', '2026-08-03', '2026-12-11', '10:00:00'),
+('HIS01', '2026-02-02', '2026-06-30', '13:30:00'),
+('HIS01', '2026-08-03', '2026-12-11', '13:30:00'),
+('GEO01', '2026-02-02', '2026-06-30', '14:30:00'),
+('GEO01', '2026-08-03', '2026-12-11', '14:30:00'),
+('ING01', '2026-02-02', '2026-06-30', '15:30:00'),
+('ING01', '2026-08-03', '2026-12-11', '15:30:00'),
+('ART01', '2026-02-02', '2026-06-30', '08:30:00'),
+('ART01', '2026-08-03', '2026-12-11', '08:30:00'),
+('INF01', '2026-02-02', '2026-06-30', '14:00:00'),
+('INF01', '2026-08-03', '2026-12-11', '14:00:00');
+
+INSERT INTO MINISTRA_OFERECIMENTO (Cod_Disciplina, Data_Inicio, Data_Fim, CPF_Professor) VALUES
+('MAT01', '2026-02-02', '2026-06-30', '200.000.000-01'),
+('MAT01', '2026-08-03', '2026-12-11', '200.000.000-01'),
+('MAT01', '2026-08-03', '2026-12-11', '200.000.000-02'),  -- co-docência
+('POR01', '2026-02-02', '2026-06-30', '200.000.000-02'),
+('POR01', '2026-08-03', '2026-12-11', '200.000.000-02'),
+('CIE01', '2026-02-02', '2026-06-30', '200.000.000-03'),
+('CIE01', '2026-08-03', '2026-12-11', '200.000.000-03'),
+('HIS01', '2026-02-02', '2026-06-30', '200.000.000-04'),
+('HIS01', '2026-08-03', '2026-12-11', '200.000.000-04'),
+('GEO01', '2026-02-02', '2026-06-30', '200.000.000-05'),
+('GEO01', '2026-08-03', '2026-12-11', '200.000.000-05'),
+('ING01', '2026-02-02', '2026-06-30', '200.000.000-06'),
+('ING01', '2026-08-03', '2026-12-11', '200.000.000-06'),
+('ART01', '2026-02-02', '2026-06-30', '300.000.000-01'),
+('ART01', '2026-08-03', '2026-12-11', '300.000.000-01'),
+('INF01', '2026-02-02', '2026-06-30', '300.000.000-02'),
+('INF01', '2026-08-03', '2026-12-11', '300.000.000-02');
+
+-- Matrículas: cada aluno cursa 2 disciplinas, com nota
+INSERT INTO MATRICULA (CPF_Aluno, Cod_Disciplina, Nota_Recebida) VALUES
+('600.000.000-01', 'MAT01', 8.50), ('600.000.000-01', 'HIS01', 7.00),
+('600.000.000-02', 'POR01', 9.00), ('600.000.000-02', 'GEO01', 6.50),
+('600.000.000-03', 'CIE01', 7.50), ('600.000.000-03', 'ING01', 8.00),
+('600.000.000-04', 'HIS01', 6.00), ('600.000.000-04', 'ART01', 9.50),
+('600.000.000-05', 'GEO01', 8.00), ('600.000.000-05', 'INF01', 7.50),
+('600.000.000-06', 'ING01', 5.50), ('600.000.000-06', 'MAT01', 6.00),
+('600.000.000-07', 'ART01', 9.50), ('600.000.000-07', 'POR01', 8.50),
+('600.000.000-08', 'INF01', 7.00), ('600.000.000-08', 'CIE01', 8.00),
+('600.000.000-09', 'MAT01', 6.50), ('600.000.000-09', 'HIS01', 7.50),
+('600.000.000-10', 'POR01', 8.80), ('600.000.000-10', 'GEO01', 9.20),
+('600.000.000-11', 'CIE01', 7.20), ('600.000.000-11', 'ING01', 6.80),
+('600.000.000-12', 'HIS01', 9.00), ('600.000.000-12', 'ART01', 9.00),
+('600.000.000-13', 'GEO01', 5.00), ('600.000.000-13', 'INF01', 7.00),
+('600.000.000-14', 'ING01', 8.30), ('600.000.000-14', 'MAT01', 7.70),
+('600.000.000-15', 'ART01', 6.90), ('600.000.000-15', 'POR01', 8.10),
+('600.000.000-16', 'INF01', 9.40), ('600.000.000-16', 'CIE01', 8.60),
+('600.000.000-17', 'MAT01', 7.80), ('600.000.000-17', 'HIS01', 6.40),
+('600.000.000-18', 'POR01', 8.00), ('600.000.000-18', 'GEO01', 8.90),
+('600.000.000-19', 'CIE01', 6.20), ('600.000.000-19', 'ING01', 5.80),
+('600.000.000-20', 'HIS01', 9.10), ('600.000.000-20', 'ART01', 7.30),
+('600.000.000-21', 'GEO01', 7.60), ('600.000.000-21', 'INF01', 8.40),
+('600.000.000-22', 'ING01', 8.70), ('600.000.000-22', 'MAT01', 9.30),
+('600.000.000-23', 'ART01', 5.90), ('600.000.000-23', 'POR01', 6.60),
+('600.000.000-24', 'INF01', 7.40), ('600.000.000-24', 'CIE01', 7.90),
+('600.000.000-25', 'MAT01', 8.20), ('600.000.000-25', 'HIS01', 6.70),
+('600.000.000-26', 'POR01', 9.60), ('600.000.000-26', 'GEO01', 8.80),
+('600.000.000-27', 'CIE01', 6.80), ('600.000.000-27', 'ING01', 7.10),
+('600.000.000-28', 'HIS01', 7.70), ('600.000.000-28', 'ART01', 9.00),
+('600.000.000-29', 'GEO01', 8.40), ('600.000.000-29', 'INF01', 5.60),
+('600.000.000-30', 'ING01', 9.80), ('600.000.000-30', 'MAT01', 8.20);
+
+-- ---------------------------------------------------------------------
+-- ATIVIDADES, MATERIAIS, PARTICIPAÇÕES e RECREADORES
+-- ---------------------------------------------------------------------
+INSERT INTO ATIVIDADE (Cod, Nome, Local_Atividade, Periodo) VALUES
+('ATV01', 'Futebol Recreativo',      'Quadra Poliesportiva',  'Tarde'),
+('ATV02', 'Oficina de Pintura',      'Sala de Artes',         'Manhã'),
+('ATV03', 'Teatro Infantil',         'Auditório',             'Tarde'),
+('ATV04', 'Capoeira',                'Pátio Coberto',         'Tarde'),
+('ATV05', 'Jogos de Tabuleiro',      'Sala de Jogos',         'Manhã'),
+('ATV06', 'Musicalização',           'Sala de Música',        'Manhã'),
+('ATV07', 'Horta Comunitária',       'Jardim da Escola',      'Manhã'),
+('ATV08', 'Contação de Histórias',   'Biblioteca',            'Tarde');
+
+INSERT INTO ATIVIDADE_MATERIAL (Cod_Atividade, Material) VALUES
+('ATV01', 'Bolas de futebol'), ('ATV01', 'Coletes'), ('ATV01', 'Cones de marcação'),
+('ATV02', 'Tintas guache'), ('ATV02', 'Pincéis'), ('ATV02', 'Papel canson'), ('ATV02', 'Aventais'),
+('ATV03', 'Fantasias'), ('ATV03', 'Cenário de papelão'), ('ATV03', 'Roteiros impressos'),
+('ATV04', 'Berimbaus'), ('ATV04', 'Atabaque'), ('ATV04', 'Tatames'),
+('ATV05', 'Xadrez'), ('ATV05', 'Dama'), ('ATV05', 'Banco Imobiliário'), ('ATV05', 'Dominó'),
+('ATV06', 'Flautas doces'), ('ATV06', 'Violões'), ('ATV06', 'Pandeiros'),
+('ATV07', 'Pás pequenas'), ('ATV07', 'Sementes'), ('ATV07', 'Regadores'), ('ATV07', 'Luvas infantis'),
+('ATV08', 'Livros infantis'), ('ATV08', 'Fantoches'), ('ATV08', 'Almofadas');
+
+-- Participação: cada aluno participa de 2 atividades e recebe girassóis (0 a 10)
+INSERT INTO PARTICIPACAO (CPF_Aluno, Cod_Atividade, Girassol_Recebido) VALUES
+('600.000.000-01', 'ATV01', 9),  ('600.000.000-01', 'ATV06', 5),
+('600.000.000-02', 'ATV02', 10), ('600.000.000-02', 'ATV07', 6),
+('600.000.000-03', 'ATV03', 7),  ('600.000.000-03', 'ATV08', 8),
+('600.000.000-04', 'ATV04', 4),  ('600.000.000-04', 'ATV01', 6),
+('600.000.000-05', 'ATV05', 8),  ('600.000.000-05', 'ATV02', 3),
+('600.000.000-06', 'ATV06', 9),  ('600.000.000-06', 'ATV03', 7),
+('600.000.000-07', 'ATV07', 5),  ('600.000.000-07', 'ATV04', 6),
+('600.000.000-08', 'ATV08', 10), ('600.000.000-08', 'ATV05', 8),
+('600.000.000-09', 'ATV01', 7),  ('600.000.000-09', 'ATV06', 4),
+('600.000.000-10', 'ATV02', 9),  ('600.000.000-10', 'ATV07', 7),
+('600.000.000-11', 'ATV03', 6),  ('600.000.000-11', 'ATV08', 5),
+('600.000.000-12', 'ATV04', 8),  ('600.000.000-12', 'ATV01', 10),
+('600.000.000-13', 'ATV05', 3),  ('600.000.000-13', 'ATV02', 6),
+('600.000.000-14', 'ATV06', 10), ('600.000.000-14', 'ATV03', 9),
+('600.000.000-15', 'ATV07', 8),  ('600.000.000-15', 'ATV04', 7),
+('600.000.000-16', 'ATV08', 9),  ('600.000.000-16', 'ATV05', 6),
+('600.000.000-17', 'ATV01', 8),  ('600.000.000-17', 'ATV06', 7),
+('600.000.000-18', 'ATV02', 5),  ('600.000.000-18', 'ATV07', 4),
+('600.000.000-19', 'ATV03', 6),  ('600.000.000-19', 'ATV08', 9),
+('600.000.000-20', 'ATV04', 10), ('600.000.000-20', 'ATV01', 5),
+('600.000.000-21', 'ATV05', 7),  ('600.000.000-21', 'ATV02', 8),
+('600.000.000-22', 'ATV06', 6),  ('600.000.000-22', 'ATV03', 10),
+('600.000.000-23', 'ATV07', 9),  ('600.000.000-23', 'ATV04', 2),
+('600.000.000-24', 'ATV08', 7),  ('600.000.000-24', 'ATV05', 8),
+('600.000.000-25', 'ATV01', 6),  ('600.000.000-25', 'ATV06', 9),
+('600.000.000-26', 'ATV02', 8),  ('600.000.000-26', 'ATV07', 10),
+('600.000.000-27', 'ATV03', 5),  ('600.000.000-27', 'ATV08', 7),
+('600.000.000-28', 'ATV04', 9),  ('600.000.000-28', 'ATV01', 4),
+('600.000.000-29', 'ATV05', 6),  ('600.000.000-29', 'ATV02', 7),
+('600.000.000-30', 'ATV06', 8),  ('600.000.000-30', 'ATV03', 9);
+
+-- Atividades ministradas (nov/2026). Todos os 14 recreadores atuam ao menos uma vez.
+INSERT INTO MINISTRA_ATIVIDADE (Cod_Atividade, CPF_Recreador, Data_Atividade, Horario) VALUES
+('ATV01', '400.000.000-01', '2026-11-02', '14:00:00'),
+('ATV01', '400.000.000-02', '2026-11-09', '14:00:00'),
+('ATV02', '400.000.000-03', '2026-11-03', '09:00:00'),
+('ATV02', '400.000.000-04', '2026-11-10', '09:00:00'),
+('ATV03', '400.000.000-05', '2026-11-04', '15:00:00'),
+('ATV03', '400.000.000-06', '2026-11-11', '15:00:00'),
+('ATV04', '400.000.000-07', '2026-11-05', '14:30:00'),
+('ATV04', '300.000.000-01', '2026-11-12', '14:30:00'),
+('ATV05', '400.000.000-08', '2026-11-06', '10:00:00'),
+('ATV05', '400.000.000-09', '2026-11-13', '10:00:00'),
+('ATV06', '400.000.000-10', '2026-11-02', '10:00:00'),
+('ATV06', '300.000.000-02', '2026-11-09', '10:00:00'),
+('ATV07', '400.000.000-11', '2026-11-03', '08:30:00'),
+('ATV07', '400.000.000-12', '2026-11-10', '08:30:00'),
+('ATV08', '400.000.000-05', '2026-11-11', '16:00:00'),
+('ATV08', '400.000.000-09', '2026-11-13', '16:00:00');
+
+-- ---------------------------------------------------------------------
+-- AVALIAÇÕES (Coordenador avalia Professor / Recreador)
+-- ---------------------------------------------------------------------
+INSERT INTO AVALIA_PROFESSOR (CPF_Coordenador, CPF_Professor, Data_Avaliacao, Nota_Recebida) VALUES
+('100.000.000-01', '200.000.000-01', '2026-10-15', 9.20),
+('100.000.000-01', '200.000.000-02', '2026-10-15', 8.70),
+('100.000.000-01', '200.000.000-03', '2026-10-16', 9.00),
+('100.000.000-01', '200.000.000-04', '2026-10-16', 7.80),
+('100.000.000-02', '200.000.000-05', '2026-10-19', 8.50),
+('100.000.000-02', '200.000.000-06', '2026-10-19', 9.40),
+('100.000.000-02', '300.000.000-01', '2026-10-20', 9.10),
+('100.000.000-02', '300.000.000-02', '2026-10-20', 8.30),
+('100.000.000-01', '200.000.000-01', '2026-11-16', 9.50);   -- reavaliação
+
+INSERT INTO AVALIA_RECREADOR (CPF_Coordenador, CPF_Recreador, Cod_Atividade, Data_Avaliacao, Nota_recebida) VALUES
+('100.000.000-01', '400.000.000-01', 'ATV01', '2026-11-04', 8.50),
+('100.000.000-01', '400.000.000-02', 'ATV01', '2026-11-11', 7.90),
+('100.000.000-01', '400.000.000-03', 'ATV02', '2026-11-05', 9.30),
+('100.000.000-01', '400.000.000-04', 'ATV02', '2026-11-12', 8.00),
+('100.000.000-01', '400.000.000-05', 'ATV03', '2026-11-06', 9.00),
+('100.000.000-01', '400.000.000-06', 'ATV03', '2026-11-13', 8.20),
+('100.000.000-01', '400.000.000-07', 'ATV04', '2026-11-09', 9.60),
+('100.000.000-02', '300.000.000-01', 'ATV04', '2026-11-13', 9.00),
+('100.000.000-02', '400.000.000-08', 'ATV05', '2026-11-09', 7.50),
+('100.000.000-02', '400.000.000-09', 'ATV05', '2026-11-16', 8.80),
+('100.000.000-02', '400.000.000-10', 'ATV06', '2026-11-04', 8.90),
+('100.000.000-02', '300.000.000-02', 'ATV06', '2026-11-10', 8.40),
+('100.000.000-02', '400.000.000-11', 'ATV07', '2026-11-05', 9.10),
+('100.000.000-02', '400.000.000-12', 'ATV07', '2026-11-12', 6.90),
+('100.000.000-02', '400.000.000-05', 'ATV08', '2026-11-12', 9.20),
+('100.000.000-02', '400.000.000-09', 'ATV08', '2026-11-16', 8.60);
+
+-- ---------------------------------------------------------------------
+-- CONTATOS (Coordenador x Responsável) - um registro por par
+-- ---------------------------------------------------------------------
+INSERT INTO CONTATO (CPF_Coordenador, CPF_Responsavel, Motivo) VALUES
+('100.000.000-01', '500.000.000-01', 'Reunião de acompanhamento pedagógico'),
+('100.000.000-01', '500.000.000-02', 'Alinhamento sobre faltas frequentes'),
+('100.000.000-01', '500.000.000-03', 'Entrega de boletim do 3º bimestre'),
+('100.000.000-01', '500.000.000-05', 'Elogio pelo desempenho dos filhos'),
+('100.000.000-01', '500.000.000-10', 'Plano de apoio para aluno com TEA'),
+('100.000.000-01', '500.000.000-13', 'Estratégias para aluno com TDAH'),
+('100.000.000-02', '500.000.000-04', 'Atualização de cadastro e documentos'),
+('100.000.000-02', '500.000.000-06', 'Autorização para passeio escolar'),
+('100.000.000-02', '500.000.000-08', 'Acompanhamento fonoaudiológico'),
+('100.000.000-02', '500.000.000-16', 'Convite para apresentação de teatro'),
+('100.000.000-02', '500.000.000-17', 'Protocolo de cuidados com diabetes'),
+('100.000.000-02', '500.000.000-20', 'Adaptação alimentar (alergia a glúten)');
+
+-- =====================================================================
+-- FIM DO SCRIPT
+-- =====================================================================
