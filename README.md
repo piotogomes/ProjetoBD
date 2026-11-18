@@ -1,6 +1,6 @@
 # Projeto BD
 
-Para rodar local
+## Para rodar local
 1. Clone o repositório
 2. No diretório do projeto: 
 
@@ -17,3 +17,10 @@ python3 ./backend/main.py
 
 (quando quiser sair do venv usa `deactivate` e pra entrar dnv `source ./app/bin/activate`)
 
+## Para conectar com o BD
+
+1. No PgAdmin, se ainda não criou o server: 
+> Crie um server novo com o nome ProjetoBD e hostname localhost (usuario: postgres e senha definida quando instalou)
+2. Clica com o direito no server e criar Database, coloque o nome de ProjetoBD tbm.
+3. Clica com o direito no novo database criado e CREATE Script.
+4. Copia tudo do script que ta nesse repositório e da execute script (F5).
