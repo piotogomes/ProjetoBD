@@ -219,7 +219,7 @@ def consultar_alunos_por_interesse(
     finally:
         db.close()
 
-
+#Interesse nas atividades
 def listar_opcoes_interesses():
     query = """
         SELECT DISTINCT interesse
@@ -234,7 +234,7 @@ def listar_opcoes_interesses():
 
 
 #Requisito funcional 2: Consultas sobre desempenho de funcionários
-#Domínio 6: Quanto às atividades
+#Domínio 5: Quanto às atividades
 def consultar_desempenho_recreadores(
     top_girassois=None,
     ordenar_por="maior_nota", # "maior_nota", "menor_nota", "media"
@@ -276,6 +276,375 @@ def consultar_desempenho_recreadores(
     coluna = colunas_ordenacao.get(ordenar_por, "maior_nota")
     direcao = "ASC" if str(ordem).lower() == "asc" else "DESC"
     query += f" ORDER BY {coluna} {direcao} NULLS LAST"
+
+    if limite is not None:
+        query += " LIMIT %s"
+        parametros.append(int(limite))
+
+    db = DatabaseManager()
+    try:
+        return db.execute_select_all(query, tuple(parametros))
+    finally:
+        db.close()
+
+
+#Domínio 6: Quanto às aulas (Professores)
+def consultar_desempenho_professores(
+    ordenar_por="maior_nota_coordenador", # "maior_nota_coordenador", "media_notas_coordenador", "media_notas_alunos"
+    ordem="desc",
+    limite=None
+):
+    query = """
+        SELECT f.nome AS nome_professor,
+               ROUND(AVG(ap.nota_recebida), 2) AS media_notas_coordenador,
+               MAX(ap.nota_recebida) AS maior_nota_coordenador,
+               ROUND((
+                   SELECT AVG(m.nota_recebida)
+                   FROM ministra_oferecimento mo
+                   JOIN matricula m ON m.cod_disciplina = mo.cod_disciplina
+                   WHERE mo.cpf_professor = p.cpf_funcionario
+               ), 2) AS media_notas_alunos
+        FROM funcionario f
+        JOIN professor p ON f.cpf = p.cpf_funcionario
+        LEFT JOIN avalia_professor ap ON p.cpf_funcionario = ap.cpf_professor
+        WHERE 1 = 1
+    """
+    parametros = []
+
+    query += " GROUP BY f.cpf, f.nome, p.cpf_funcionario"
+
+    colunas_ordenacao = {
+        "maior_nota_coordenador": "maior_nota_coordenador",
+        "media_notas_coordenador": "media_notas_coordenador",
+        "media_notas_alunos": "media_notas_alunos"
+    }
+    coluna = colunas_ordenacao.get(ordenar_por, "maior_nota_coordenador")
+    direcao = "ASC" if str(ordem).lower() == "asc" else "DESC"
+    query += f" ORDER BY {coluna} {direcao} NULLS LAST"
+
+    if limite is not None:
+        query += " LIMIT %s"
+        parametros.append(int(limite))
+
+    db = DatabaseManager()
+    try:
+        return db.execute_select_all(query, tuple(parametros))
+    finally:
+        db.close()
+
+
+#Domínio 7: Quanto à carga de trabalho
+def consultar_carga_trabalho(
+    ultimos_meses=None,
+    perfil=None, # "recreador", "professor", "coordenador"
+    ordenar_por="atividades", # "atividades", "oferecimentos", "contatos", "disponibilidade_alocacao"
+    ordem="desc",
+    limite=None
+):
+    query = """
+        SELECT f.nome AS nome_funcionario,
+               COUNT(DISTINCT ma.cod_atividade || '-' || ma.data_atividade || '-' || ma.horario) AS qtd_atividades,
+               COUNT(DISTINCT mo.cod_disciplina || '-' || mo.data_inicio || '-' || mo.data_fim) AS qtd_oferecimentos,
+               COUNT(DISTINCT c.cpf_responsavel || '-' || c.motivo) AS qtd_contatos,
+               COUNT(DISTINCT fd.disponibilidade) AS qtd_disponibilidades
+        FROM funcionario f
+        LEFT JOIN ministra_atividade ma ON f.cpf = ma.cpf_recreador
+        LEFT JOIN ministra_oferecimento mo ON f.cpf = mo.cpf_professor
+        LEFT JOIN contato c ON f.cpf = c.cpf_coordenador
+        LEFT JOIN funcionario_disponibilidade fd ON f.cpf = fd.cpf_funcionario
+        WHERE 1 = 1
+    """
+    parametros = []
+
+    if ultimos_meses is not None:
+        query += " AND ma.data_atividade >= CURRENT_DATE - (%s * INTERVAL '1 month')"
+        parametros.append(int(ultimos_meses))
+
+    if perfil == "recreador":
+        query += " AND ma.cpf_recreador IS NOT NULL"
+    elif perfil == "professor":
+        query += " AND mo.cpf_professor IS NOT NULL"
+    elif perfil == "coordenador":
+        query += " AND c.cpf_coordenador IS NOT NULL"
+
+    query += " GROUP BY f.cpf, f.nome"
+
+    if ordenar_por == "disponibilidade_alocacao":
+        query += """
+            ORDER BY qtd_disponibilidades DESC,
+                     (COUNT(DISTINCT ma.cod_atividade || '-' || ma.data_atividade || '-' || ma.horario)
+                    + COUNT(DISTINCT mo.cod_disciplina || '-' || mo.data_inicio || '-' || mo.data_fim)) ASC
+        """
+    else:
+        colunas_ordenacao = {
+            "atividades": "qtd_atividades",
+            "oferecimentos": "qtd_oferecimentos",
+            "contatos": "qtd_contatos"
+        }
+        coluna = colunas_ordenacao.get(ordenar_por, "qtd_atividades")
+        direcao = "ASC" if str(ordem).lower() == "asc" else "DESC"
+        query += f" ORDER BY {coluna} {direcao}"
+
+    if limite is not None:
+        query += " LIMIT %s"
+        parametros.append(int(limite))
+
+    db = DatabaseManager()
+    try:
+        return db.execute_select_all(query, tuple(parametros))
+    finally:
+        db.close()
+
+
+#Requisito funcional 3: Consultas sobre atividades e aulas
+#Domínio 8: Desempenho e logística das atividades
+def consultar_desempenho_atividades(
+    ultimos_meses=None,
+    local_atividade=None,
+    data_inicio=None,
+    data_fim=None,
+    ordenar_por="participacoes", # "participacoes", "media_notas_recreadores", "materiais"
+    ordem="desc",
+    limite=None
+):
+    query = """
+        SELECT a.nome AS nome_atividade,
+               a.local_atividade,
+               a.periodo,
+               COUNT(DISTINCT p.cpf_aluno) AS qtd_participacoes,
+               COUNT(DISTINCT am.material) AS qtd_materiais,
+               ROUND((
+                   SELECT AVG(ar.nota_recebida)
+                   FROM avalia_recreador ar
+                   WHERE ar.cod_atividade = a.cod
+               ), 2) AS media_notas_recreadores
+        FROM atividade a
+        LEFT JOIN participacao p ON a.cod = p.cod_atividade
+        LEFT JOIN ministra_atividade ma ON a.cod = ma.cod_atividade
+        LEFT JOIN atividade_material am ON a.cod = am.cod_atividade
+        WHERE 1 = 1
+    """
+    parametros = []
+
+    if ultimos_meses is not None:
+        query += " AND ma.data_atividade >= CURRENT_DATE - (%s * INTERVAL '1 month')"
+        parametros.append(int(ultimos_meses))
+
+    if local_atividade:
+        query += " AND a.local_atividade ILIKE %s"
+        parametros.append(f"%{local_atividade}%")
+
+    if data_inicio:
+        query += " AND ma.data_atividade >= %s"
+        parametros.append(data_inicio)
+
+    if data_fim:
+        query += " AND ma.data_atividade <= %s"
+        parametros.append(data_fim)
+
+    query += " GROUP BY a.cod, a.nome, a.local_atividade, a.periodo"
+
+    colunas_ordenacao = {
+        "participacoes": "qtd_participacoes",
+        "media_notas_recreadores": "media_notas_recreadores",
+        "materiais": "qtd_materiais"
+    }
+    coluna = colunas_ordenacao.get(ordenar_por, "qtd_participacoes")
+    direcao = "ASC" if str(ordem).lower() == "asc" else "DESC"
+    query += f" ORDER BY {coluna} {direcao} NULLS LAST"
+
+    if limite is not None:
+        query += " LIMIT %s"
+        parametros.append(int(limite))
+
+    db = DatabaseManager()
+    try:
+        return db.execute_select_all(query, tuple(parametros))
+    finally:
+        db.close()
+
+
+#Domínio 9: Quanto às aulas (Disciplinas e Oferecimentos)
+def consultar_disciplinas_oferecimentos(
+    data_inicio=None,
+    data_fim=None,
+    professor=None,
+    ordenar_por="media_notas", # "media_notas", "matriculados", "abaixo_media", "data_inicio"
+    ordem="desc",
+    limite=None
+):
+    query = """
+        SELECT d.nome AS nome_disciplina,
+               o.data_inicio,
+               o.data_fim,
+               o.hora_inicio,
+               f.nome AS nome_professor,
+               COUNT(DISTINCT m.cpf_aluno) AS qtd_matriculados,
+               ROUND((
+                   SELECT AVG(m2.nota_recebida)
+                   FROM matricula m2
+                   WHERE m2.cod_disciplina = d.cod
+               ), 2) AS media_notas,
+               (
+                   SELECT COUNT(*)
+                   FROM matricula m3
+                   WHERE m3.cod_disciplina = d.cod
+                     AND m3.nota_recebida < (
+                         SELECT AVG(m4.nota_recebida)
+                         FROM matricula m4
+                         WHERE m4.cod_disciplina = d.cod
+                     )
+               ) AS qtd_abaixo_media
+        FROM disciplina d
+        LEFT JOIN matricula m ON d.cod = m.cod_disciplina
+        LEFT JOIN oferecimento o ON d.cod = o.cod_disciplina
+        LEFT JOIN ministra_oferecimento mo ON o.cod_disciplina = mo.cod_disciplina
+                                           AND o.data_inicio = mo.data_inicio
+                                           AND o.data_fim = mo.data_fim
+        LEFT JOIN funcionario f ON mo.cpf_professor = f.cpf
+        WHERE 1 = 1
+    """
+    parametros = []
+
+    if data_inicio:
+        query += " AND o.data_inicio >= %s"
+        parametros.append(data_inicio)
+
+    if data_fim:
+        query += " AND o.data_fim <= %s"
+        parametros.append(data_fim)
+
+    if professor:
+        query += " AND f.nome ILIKE %s"
+        parametros.append(f"%{professor}%")
+
+    query += " GROUP BY d.cod, d.nome, o.data_inicio, o.data_fim, o.hora_inicio, f.nome"
+
+    colunas_ordenacao = {
+        "media_notas": "media_notas",
+        "matriculados": "qtd_matriculados",
+        "abaixo_media": "qtd_abaixo_media",
+        "data_inicio": "o.data_inicio"
+    }
+    coluna = colunas_ordenacao.get(ordenar_por, "media_notas")
+    direcao = "ASC" if str(ordem).lower() == "asc" else "DESC"
+    query += f" ORDER BY {coluna} {direcao} NULLS LAST"
+
+    if limite is not None:
+        query += " LIMIT %s"
+        parametros.append(int(limite))
+
+    db = DatabaseManager()
+    try:
+        return db.execute_select_all(query, tuple(parametros))
+    finally:
+        db.close()
+
+
+#Requisito funcional 4: Educação financeira
+#Domínio 10: Rendimento individual
+def consultar_rendimento_individual(
+    aluno=None,
+    ultimos_meses=None,
+    data_inicio=None,
+    data_fim=None,
+    ordenar_por="total_girassois", # "total_girassois", "media_girassois"
+    ordem="desc",
+    limite=None
+):
+    query = """
+        SELECT al.nome AS nome_aluno,
+               a.nome AS nome_atividade,
+               SUM(p.girassol_recebido) AS total_girassois,
+               ROUND(AVG(p.girassol_recebido), 2) AS media_girassois
+        FROM aluno al
+        JOIN participacao p ON al.cpf = p.cpf_aluno
+        JOIN atividade a ON p.cod_atividade = a.cod
+        JOIN ministra_atividade ma ON a.cod = ma.cod_atividade
+        WHERE 1 = 1
+    """
+    parametros = []
+
+    if aluno:
+        query += " AND al.nome ILIKE %s"
+        parametros.append(f"%{aluno}%")
+
+    if ultimos_meses is not None:
+        query += " AND ma.data_atividade >= CURRENT_DATE - (%s * INTERVAL '1 month')"
+        parametros.append(int(ultimos_meses))
+
+    if data_inicio:
+        query += " AND ma.data_atividade >= %s"
+        parametros.append(data_inicio)
+
+    if data_fim:
+        query += " AND ma.data_atividade <= %s"
+        parametros.append(data_fim)
+
+    query += " GROUP BY al.cpf, al.nome, a.cod, a.nome"
+
+    colunas_ordenacao = {
+        "total_girassois": "total_girassois",
+        "media_girassois": "media_girassois"
+    }
+    coluna = colunas_ordenacao.get(ordenar_por, "total_girassois")
+    direcao = "ASC" if str(ordem).lower() == "asc" else "DESC"
+    query += f" ORDER BY {coluna} {direcao}"
+
+    if limite is not None:
+        query += " LIMIT %s"
+        parametros.append(int(limite))
+
+    db = DatabaseManager()
+    try:
+        return db.execute_select_all(query, tuple(parametros))
+    finally:
+        db.close()
+
+
+#Domínio 11: Distribuição de moedas no projeto
+def consultar_distribuicao_moedas(
+    ultimos_meses=None,
+    data_inicio=None,
+    data_fim=None,
+    ordenar_por="total_girassois", # "total_girassois", "media_girassois"
+    ordem="desc",
+    limite=None
+):
+    query = """
+        SELECT a.nome AS nome_atividade,
+               al.escolaridade,
+               SUM(p.girassol_recebido) AS total_girassois,
+               ROUND(AVG(p.girassol_recebido), 2) AS media_girassois
+        FROM participacao p
+        JOIN atividade a ON p.cod_atividade = a.cod
+        JOIN aluno al ON p.cpf_aluno = al.cpf
+        JOIN ministra_atividade ma ON a.cod = ma.cod_atividade
+        WHERE 1 = 1
+    """
+    parametros = []
+
+    if ultimos_meses is not None:
+        query += " AND ma.data_atividade >= CURRENT_DATE - (%s * INTERVAL '1 month')"
+        parametros.append(int(ultimos_meses))
+
+    if data_inicio:
+        query += " AND ma.data_atividade >= %s"
+        parametros.append(data_inicio)
+
+    if data_fim:
+        query += " AND ma.data_atividade <= %s"
+        parametros.append(data_fim)
+
+    query += " GROUP BY a.cod, a.nome, al.escolaridade"
+
+    colunas_ordenacao = {
+        "total_girassois": "total_girassois",
+        "media_girassois": "media_girassois"
+    }
+    coluna = colunas_ordenacao.get(ordenar_por, "total_girassois")
+    direcao = "ASC" if str(ordem).lower() == "asc" else "DESC"
+    query += f" ORDER BY {coluna} {direcao}"
 
     if limite is not None:
         query += " LIMIT %s"

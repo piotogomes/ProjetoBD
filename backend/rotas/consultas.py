@@ -2,10 +2,16 @@ from flask import Blueprint, request, jsonify, session
 from servicos.consultas import (
     consultar_engajamento_moedas,
     consultar_desempenho_pedagogico,
-    consultar_desempenho_recreadores,
     consultar_necessidades_contatos,
     consultar_alunos_por_interesse,
     listar_opcoes_interesses,
+    consultar_desempenho_recreadores,
+    consultar_desempenho_professores,
+    consultar_carga_trabalho,
+    consultar_desempenho_atividades,
+    consultar_disciplinas_oferecimentos,
+    consultar_rendimento_individual,
+    consultar_distribuicao_moedas,
 )
 
 consultas_bp = Blueprint("consultas", __name__, url_prefix="/api/consultas")
@@ -67,7 +73,7 @@ def rota_alunos_interesse():
 
 
 #Requisito funcional 2: Consultas sobre desempenho de funcionários
-#Domínio 1: Quanto às atividades
+#Domínio 5: Quanto às atividades
 @consultas_bp.route("/recreadores", methods=["GET"])
 def rota_recreadores():
     # Exemplo de trava usando a session do auth.py (descomente quando for testar logado):
@@ -77,6 +83,89 @@ def rota_recreadores():
     dados = consultar_desempenho_recreadores(
         top_girassois=request.args.get("top_girassois", type=int),
         ordenar_por=request.args.get("ordenar_por", default="maior_nota"),
+        ordem=request.args.get("ordem", default="desc"),
+        limite=request.args.get("limite", type=int),
+    )
+    return jsonify({"total": len(dados), "dados": dados}), 200
+
+# Domínio 6: Quanto às aulas (Professores)
+@consultas_bp.route("/professores", methods=["GET"])
+def rota_professores():
+    dados = consultar_desempenho_professores(
+        ordenar_por=request.args.get("ordenar_por", default="maior_nota_coordenador"),
+        ordem=request.args.get("ordem", default="desc"),
+        limite=request.args.get("limite", type=int),
+    )
+    return jsonify({"total": len(dados), "dados": dados}), 200
+
+
+# Domínio 7: Quanto à carga de trabalho
+@consultas_bp.route("/carga-trabalho", methods=["GET"])
+def rota_carga_trabalho():
+    dados = consultar_carga_trabalho(
+        ultimos_meses=request.args.get("ultimos_meses", type=int),
+        perfil=request.args.get("perfil"),
+        ordenar_por=request.args.get("ordenar_por", default="atividades"),
+        ordem=request.args.get("ordem", default="desc"),
+        limite=request.args.get("limite", type=int),
+    )
+    return jsonify({"total": len(dados), "dados": dados}), 200
+
+
+#Requisito funcional 3: Atividades e aulas
+# Domínio 8: Desempenho e logística das atividades
+@consultas_bp.route("/atividades", methods=["GET"])
+def rota_atividades():
+    dados = consultar_desempenho_atividades(
+        ultimos_meses=request.args.get("ultimos_meses", type=int),
+        local_atividade=request.args.get("local_atividade"),
+        data_inicio=request.args.get("data_inicio"),
+        data_fim=request.args.get("data_fim"),
+        ordenar_por=request.args.get("ordenar_por", default="participacoes"),
+        ordem=request.args.get("ordem", default="desc"),
+        limite=request.args.get("limite", type=int),
+    )
+    return jsonify({"total": len(dados), "dados": dados}), 200
+
+
+# Domínio 9: Quanto às aulas (Disciplinas e Oferecimentos)
+@consultas_bp.route("/disciplinas", methods=["GET"])
+def rota_disciplinas():
+    dados = consultar_disciplinas_oferecimentos(
+        data_inicio=request.args.get("data_inicio"),
+        data_fim=request.args.get("data_fim"),
+        professor=request.args.get("professor"),
+        ordenar_por=request.args.get("ordenar_por", default="media_notas"),
+        ordem=request.args.get("ordem", default="desc"),
+        limite=request.args.get("limite", type=int),
+    )
+    return jsonify({"total": len(dados), "dados": dados}), 200
+
+
+#Requisito funcional 4: Educação financeira
+# Domínio 10: Rendimento individual
+@consultas_bp.route("/rendimento-individual", methods=["GET"])
+def rota_rendimento_individual():
+    dados = consultar_rendimento_individual(
+        aluno=request.args.get("aluno"),
+        ultimos_meses=request.args.get("ultimos_meses", type=int),
+        data_inicio=request.args.get("data_inicio"),
+        data_fim=request.args.get("data_fim"),
+        ordenar_por=request.args.get("ordenar_por", default="total_girassois"),
+        ordem=request.args.get("ordem", default="desc"),
+        limite=request.args.get("limite", type=int),
+    )
+    return jsonify({"total": len(dados), "dados": dados}), 200
+
+
+# Domínio 11: Distribuição de moedas no projeto
+@consultas_bp.route("/distribuicao-moedas", methods=["GET"])
+def rota_distribuicao_moedas():
+    dados = consultar_distribuicao_moedas(
+        ultimos_meses=request.args.get("ultimos_meses", type=int),
+        data_inicio=request.args.get("data_inicio"),
+        data_fim=request.args.get("data_fim"),
+        ordenar_por=request.args.get("ordenar_por", default="total_girassois"),
         ordem=request.args.get("ordem", default="desc"),
         limite=request.args.get("limite", type=int),
     )
