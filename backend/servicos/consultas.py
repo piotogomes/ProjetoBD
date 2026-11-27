@@ -19,13 +19,19 @@ def consultar_engajamento_moedas(
                ROUND((SUM(p.girassol_recebido) * 1.0) / COUNT(p.cod_atividade), 2) AS media_por_atividade
         FROM aluno al
         JOIN participacao p ON al.cpf = p.cpf_aluno
-        JOIN ministra_atividade ma ON p.cod_atividade = ma.cod_atividade
         WHERE 1 = 1
     """
     parametros = []
 
     if ultimos_meses is not None:
-        query += " AND ma.data_atividade >= CURRENT_DATE - (%s * INTERVAL '1 month')"
+        query += """
+            AND EXISTS (
+                SELECT 1
+                FROM ministra_atividade ma
+                WHERE ma.cod_atividade = p.cod_atividade
+                  AND ma.data_atividade >= CURRENT_DATE - (%s * INTERVAL '1 month')
+            )
+        """
         parametros.append(int(ultimos_meses))
 
     if tipo_impacto in ("maior", "menor") and top_atividades is not None:

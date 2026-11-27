@@ -14,6 +14,10 @@ from servicos.cadastro import (
     cadastro_bp,
 )
 
+from rotas.consultas import (
+    consultas_bp,
+)
+
 
 frontend_path = os.path.abspath(
     os.path.join(
@@ -49,6 +53,7 @@ csrf = CSRFProtect(app)
 # Registro das rotas de autenticação
 app.register_blueprint(auth_bp)
 app.register_blueprint(cadastro_bp)
+app.register_blueprint(consultas_bp)
 
 
 
