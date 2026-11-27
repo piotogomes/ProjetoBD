@@ -1,6 +1,6 @@
 from servicos.database.manager import DatabaseManager
 
-#Requisito funcional 1: Consultas sobre desempenho dos alunos
+#Requisito funcional 1: Consultas sobre desempenho e interesses dos alunos
 #Domínio 1: Engajamento e moedas
 def consultar_engajamento_moedas(
     ultimos_meses=None,
@@ -157,8 +157,84 @@ def consultar_necessidades_contatos(ordenar_por="contatos", limite=None):
     finally:
         db.close()
 
+#Domínio 4: Quanto aos interesses
+def consultar_alunos_por_interesse(
+    interesse=None,
+    cod_atividade=None,
+    apenas_nao_participantes=False,
+    ordem="asc",
+    limite=None
+):
+    query = """
+        SELECT DISTINCT
+            al.cpf,
+            al.nome AS nome_aluno,
+            al.escolaridade,
+            ai.interesse
+        FROM aluno al
+        JOIN aluno_interesse ai ON al.cpf = ai.cpf_aluno
+        WHERE 1 = 1
+    """
+    parametros = []
+
+    if interesse:
+        query += " AND ai.interesse ILIKE %s"
+        parametros.append(f"%{interesse}%")
+
+    if cod_atividade:
+        query += """
+            AND EXISTS (
+                SELECT 1
+                FROM atividade a
+                WHERE a.cod = %s
+                  AND (
+                      a.nome ILIKE '%%' || ai.interesse || '%%'
+                      OR ai.interesse ILIKE '%%' || a.nome || '%%'
+                  )
+            )
+        """
+        parametros.append(cod_atividade)
+
+        if apenas_nao_participantes:
+            query += """
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM participacao p
+                    WHERE p.cpf_aluno = al.cpf
+                      AND p.cod_atividade = %s
+                )
+            """
+            parametros.append(cod_atividade)
+
+    direcao = "DESC" if str(ordem).lower() == "desc" else "ASC"
+    query += f" ORDER BY al.nome {direcao}"
+
+    if limite is not None:
+        query += " LIMIT %s"
+        parametros.append(int(limite))
+
+    db = DatabaseManager()
+    try:
+        return db.execute_select_all(query, tuple(parametros))
+    finally:
+        db.close()
+
+
+def listar_opcoes_interesses():
+    query = """
+        SELECT DISTINCT interesse
+        FROM aluno_interesse
+        ORDER BY interesse ASC
+    """
+    db = DatabaseManager()
+    try:
+        return db.execute_select_all(query)
+    finally:
+        db.close()
+
+
 #Requisito funcional 2: Consultas sobre desempenho de funcionários
-#Domínio 4: Quanto às atividades
+#Domínio 6: Quanto às atividades
 def consultar_desempenho_recreadores(
     top_girassois=None,
     ordenar_por="maior_nota", # "maior_nota", "menor_nota", "media"

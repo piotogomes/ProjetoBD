@@ -4,6 +4,8 @@ from servicos.consultas import (
     consultar_desempenho_pedagogico,
     consultar_desempenho_recreadores,
     consultar_necessidades_contatos,
+    consultar_alunos_por_interesse,
+    listar_opcoes_interesses,
 )
 
 consultas_bp = Blueprint("consultas", __name__, url_prefix="/api/consultas")
@@ -43,8 +45,29 @@ def rota_necessidades():
     )
     return jsonify({"total": len(dados), "dados": dados}), 200
 
+
+#Dominio 4: Interesses
+@consultas_bp.route("/interesses/opcoes", methods=["GET"])
+def rota_opcoes_interesses():
+    dados = listar_opcoes_interesses()
+    return jsonify({"total": len(dados), "dados": dados}), 200
+
+
+@consultas_bp.route("/interesses", methods=["GET"])
+def rota_alunos_interesse():
+    dados = consultar_alunos_por_interesse(
+        interesse=request.args.get("interesse"),
+        cod_atividade=request.args.get("cod_atividade"),
+        apenas_nao_participantes=request.args.get("apenas_nao_participantes", default="false").lower() == "true",
+        ordem=request.args.get("ordem", default="asc"),
+        limite=request.args.get("limite", type=int),
+    )
+    return jsonify({"total": len(dados), "dados": dados}), 200
+
+
+
 #Requisito funcional 2: Consultas sobre desempenho de funcionários
-#Domínio 4: Quanto às atividades
+#Domínio 1: Quanto às atividades
 @consultas_bp.route("/recreadores", methods=["GET"])
 def rota_recreadores():
     # Exemplo de trava usando a session do auth.py (descomente quando for testar logado):
