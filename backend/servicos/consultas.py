@@ -477,7 +477,7 @@ def consultar_disciplinas_oferecimentos(
         SELECT d.nome AS nome_disciplina,
                o.data_inicio,
                o.data_fim,
-               o.hora_inicio,
+               CAST(o.hora_inicio AS TEXT) AS hora_inicio,
                f.nome AS nome_professor,
                COUNT(DISTINCT m.cpf_aluno) AS qtd_matriculados,
                ROUND((
