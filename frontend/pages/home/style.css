@@ -1,5 +1,112 @@
-.containerPng{
+.hero-card {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: #f8fafc;
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 28px;
+    border-bottom: 4px solid #eab308;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.14);
+}
+
+.hero-tag {
+    display: inline-block;
+    background: rgba(234, 179, 8, 0.2);
+    color: #fde047;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+}
+
+.hero-card h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.hero-card p {
+    color: #cbd5e1;
+    max-width: 720px;
+    font-size: 0.98rem;
+}
+
+.hero-card strong {
+    color: #fde047;
+}
+
+.modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.module-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    text-decoration: none;
+    color: inherit;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 16px;
+    box-shadow: var(--shadow);
+    transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.module-card:hover {
+    transform: translateY(-3px);
+    border-color: #eab308;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
+}
+
+.module-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #fef9c3;
+    display: flex;
     align-items: center;
+    justify-content: center;
+    font-size: 1.55rem;
+}
+
+.module-body h2 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    color: var(--text);
+}
+
+.module-body p {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    margin-bottom: 14px;
+}
+
+.module-tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.module-tags li {
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    color: #334155;
+    font-size: 0.76rem;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 999px;
+}
+
+.module-cta {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #a16207;
 }

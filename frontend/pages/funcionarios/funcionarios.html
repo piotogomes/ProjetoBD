@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desempenho de Funcionários - Projeto Girassol</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='components/header/header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/styles/app.css') }}">
+    <script src="{{ url_for('static', filename='assets/js/consultas.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='pages/funcionarios/script.js') }}" defer></script>
+</head>
+<body>
+    {% include "components/header/header.html" %}
+
+    <main class="page-container">
+        <div class="page-header">
+            <div>
+                <h1>Desempenho de Funcionários</h1>
+                <p class="page-subtitle">
+                    Avaliações de recreadores e professores e análise de carga de trabalho da equipe.
+                </p>
+            </div>
+            <span class="access-pill">Acesso exclusivo: Coordenadores</span>
+        </div>
+
+        <div class="domain-tabs" role="tablist">
+            <button type="button" class="tab-btn active" data-tab="recreadores">1. Recreadores (Atividades)</button>
+            <button type="button" class="tab-btn" data-tab="professores">2. Professores (Aulas)</button>
+            <button type="button" class="tab-btn" data-tab="carga">3. Carga de Trabalho</button>
+        </div>
+
+        <!-- DOMÍNIO 5: RECREADORES -->
+        <section class="domain-panel active" data-panel="recreadores">
+            <div class="card">
+                <div class="card-title-row">
+                    <h2>Desempenho de Recreadores</h2>
+                </div>
+                <p class="card-description">
+                    Consulte as notas atribuídas pela coordenação aos recreadores e filtre pelos que mais geraram girassóis aos alunos.
+                </p>
+
+                <div class="presets-box">
+                    <span class="presets-label">Perguntas rápidas</span>
+                    <div class="presets-list">
+                        <button type="button" class="preset-chip preset-recreadores"
+                                data-preset='{"top_girassois":"5","ordenar_por":"media","ordem":"desc"}'>
+                            Top 5 que mais geraram girassóis
+                        </button>
+                        <button type="button" class="preset-chip preset-recreadores"
+                                data-preset='{"ordenar_por":"maior_nota","ordem":"desc","limite":"5"}'>
+                            Maiores notas dos coordenadores
+                        </button>
+                        <button type="button" class="preset-chip preset-recreadores"
+                                data-preset='{"ordenar_por":"menor_nota","ordem":"asc","limite":"5"}'>
+                            Menores notas dos coordenadores
+                        </button>
+                        <button type="button" class="preset-chip preset-recreadores"
+                                data-preset='{"ordenar_por":"media","ordem":"desc","limite":"5"}'>
+                            Maiores médias de notas
+                        </button>
+                        <button type="button" class="preset-chip preset-recreadores"
+                                data-preset='{"ordenar_por":"media","ordem":"asc","limite":"5"}'>
+                            Menores médias de notas
+                        </button>
+                    </div>
+                </div>
+
+                <form id="form-recreadores">
+                    <div class="filters-grid">
+                        <div class="field">
+                            <label for="rec-top-girassois">Top X em geração de girassóis</label>
+                            <input type="number" id="rec-top-girassois" name="top_girassois" min="1" placeholder="Ex: 5">
+                        </div>
+                        <div class="field">
+                            <label for="rec-ordenar-por">Ordenar por</label>
+                            <select id="rec-ordenar-por" name="ordenar_por">
+                                <option value="maior_nota">Maior nota</option>
+                                <option value="menor_nota">Menor nota</option>
+                                <option value="media">Média das notas</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="rec-ordem">Ordem</label>
+                            <select id="rec-ordem" name="ordem">
+                                <option value="desc">Decrescente</option>
+                                <option value="asc">Crescente</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="rec-limite">Limite</label>
+                            <input type="number" id="rec-limite" name="limite" min="1" placeholder="Todos">
+                        </div>
+                    </div>
+
+                    <div class="actions-row">
+                        <button type="submit" class="btn btn-primary">Consultar</button>
+                        <button type="button" id="reset-recreadores" class="btn btn-secondary">Limpar filtros</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="results-header">
+                    <h2>Resultados</h2>
+                    <span id="count-recreadores" class="results-count">0 registros</span>
+                </div>
+                <div id="table-recreadores"></div>
+            </div>
+        </section>
+
+        <!-- DOMÍNIO 6: PROFESSORES -->
+        <section class="domain-panel" data-panel="professores">
+            <div class="card">
+                <div class="card-title-row">
+                    <h2>Desempenho de Professores (Aulas)</h2>
+                </div>
+                <p class="card-description">
+                    Compare as avaliações recebidas dos coordenadores com a média de notas dos alunos nas disciplinas ministradas.
+                </p>
+
+                <div class="presets-box">
+                    <span class="presets-label">Perguntas rápidas</span>
+                    <div class="presets-list">
+                        <button type="button" class="preset-chip preset-professores"
+                                data-preset='{"ordenar_por":"maior_nota_coordenador","ordem":"desc","limite":"5"}'>
+                            Top 5 maiores notas do coordenador
+                        </button>
+                        <button type="button" class="preset-chip preset-professores"
+                                data-preset='{"ordenar_por":"media_notas_coordenador","ordem":"desc","limite":"5"}'>
+                            Top 5 maiores médias do coordenador
+                        </button>
+                        <button type="button" class="preset-chip preset-professores"
+                                data-preset='{"ordenar_por":"media_notas_alunos","ordem":"desc","limite":"5"}'>
+                            Top 5 maior média dos alunos
+                        </button>
+                    </div>
+                </div>
+
+                <form id="form-professores">
+                    <div class="filters-grid">
+                        <div class="field">
+                            <label for="prof-ordenar-por">Ordenar por</label>
+                            <select id="prof-ordenar-por" name="ordenar_por">
+                                <option value="maior_nota_coordenador">Maior nota do coordenador</option>
+                                <option value="media_notas_coordenador">Média das notas do coordenador</option>
+                                <option value="media_notas_alunos">Média de notas dos alunos</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="prof-ordem">Ordem</label>
+                            <select id="prof-ordem" name="ordem">
+                                <option value="desc">Decrescente</option>
+                                <option value="asc">Crescente</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="prof-limite">Limite</label>
+                            <input type="number" id="prof-limite" name="limite" min="1" placeholder="Todos">
+                        </div>
+                    </div>
+
+                    <div class="actions-row">
+                        <button type="submit" class="btn btn-primary">Consultar</button>
+                        <button type="button" id="reset-professores" class="btn btn-secondary">Limpar filtros</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="results-header">
+                    <h2>Resultados</h2>
+                    <span id="count-professores" class="results-count">0 registros</span>
+                </div>
+                <div id="table-professores"></div>
+            </div>
+        </section>
+
+        <!-- DOMÍNIO 7: CARGA DE TRABALHO -->
+        <section class="domain-panel" data-panel="carga">
+            <div class="card">
+                <div class="card-title-row">
+                    <h2>Carga de Trabalho da Equipe</h2>
+                </div>
+                <p class="card-description">
+                    Analise atividades ministradas, oferecimentos de aulas, contatos com responsáveis e disponibilidade cadastrada.
+                </p>
+
+                <div class="presets-box">
+                    <span class="presets-label">Perguntas rápidas</span>
+                    <div class="presets-list">
+                        <button type="button" class="preset-chip preset-carga"
+                                data-preset='{"ultimos_meses":"6","perfil":"recreador","ordenar_por":"atividades","ordem":"desc","limite":"5"}'>
+                            Recreadores com mais atividades (últimos 6 meses)
+                        </button>
+                        <button type="button" class="preset-chip preset-carga"
+                                data-preset='{"perfil":"professor","ordenar_por":"oferecimentos","ordem":"desc","limite":"5"}'>
+                            Professores com mais oferecimentos
+                        </button>
+                        <button type="button" class="preset-chip preset-carga"
+                                data-preset='{"perfil":"coordenador","ordenar_por":"contatos","ordem":"desc"}'>
+                            Coordenadores com mais contatos
+                        </button>
+                        <button type="button" class="preset-chip preset-carga"
+                                data-preset='{"ordenar_por":"disponibilidade_alocacao","limite":"10"}'>
+                            Maior disponibilidade e menos alocações
+                        </button>
+                    </div>
+                </div>
+
+                <form id="form-carga">
+                    <div class="filters-grid">
+                        <div class="field">
+                            <label for="car-ultimos-meses">Últimos meses (atividades)</label>
+                            <input type="number" id="car-ultimos-meses" name="ultimos_meses" min="1" placeholder="Ex: 6">
+                        </div>
+                        <div class="field">
+                            <label for="car-perfil">Perfil</label>
+                            <select id="car-perfil" name="perfil">
+                                <option value="">Todos os perfis</option>
+                                <option value="recreador">Recreador</option>
+                                <option value="professor">Professor</option>
+                                <option value="coordenador">Coordenador</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="car-ordenar-por">Ordenar por</label>
+                            <select id="car-ordenar-por" name="ordenar_por">
+                                <option value="atividades">Qtd. de atividades</option>
+                                <option value="oferecimentos">Qtd. de oferecimentos</option>
+                                <option value="contatos">Qtd. de contatos</option>
+                                <option value="disponibilidade_alocacao">Maior disponibilidade / menor alocação</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="car-ordem">Ordem</label>
+                            <select id="car-ordem" name="ordem">
+                                <option value="desc">Decrescente</option>
+                                <option value="asc">Crescente</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="car-limite">Limite</label>
+                            <input type="number" id="car-limite" name="limite" min="1" placeholder="Todos">
+                        </div>
+                    </div>
+
+                    <div class="actions-row">
+                        <button type="submit" class="btn btn-primary">Consultar</button>
+                        <button type="button" id="reset-carga" class="btn btn-secondary">Limpar filtros</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="results-header">
+                    <h2>Resultados</h2>
+                    <span id="count-carga" class="results-count">0 registros</span>
+                </div>
+                <div id="table-carga"></div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

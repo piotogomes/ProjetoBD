@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atividades e Aulas - Projeto Girassol</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='components/header/header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/styles/app.css') }}">
+    <script src="{{ url_for('static', filename='assets/js/consultas.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='pages/atividades_aulas/script.js') }}" defer></script>
+</head>
+<body>
+    {% include "components/header/header.html" %}
+
+    <main class="page-container">
+        <div class="page-header">
+            <div>
+                <h1>Atividades e Aulas</h1>
+                <p class="page-subtitle">
+                    Consultas dinâmicas sobre logística das atividades recreativas e oferecimentos de disciplinas.
+                </p>
+            </div>
+            <span class="access-pill">Acesso: Coordenadores, Professores e Recreadores</span>
+        </div>
+
+        <div class="domain-tabs" role="tablist">
+            <button type="button" class="tab-btn active" data-tab="atividades">1. Desempenho e Logística das Atividades</button>
+            <button type="button" class="tab-btn" data-tab="disciplinas">2. Disciplinas e Oferecimentos</button>
+        </div>
+
+        <!-- DOMÍNIO 8: ATIVIDADES -->
+        <section class="domain-panel active" data-panel="atividades">
+            <div class="card">
+                <div class="card-title-row">
+                    <h2>Desempenho e Logística das Atividades</h2>
+                </div>
+                <p class="card-description">
+                    Consulte participações de alunos, quantidade de materiais exigidos, locais, períodos e avaliação média dos recreadores.
+                </p>
+
+                <div class="presets-box">
+                    <span class="presets-label">Perguntas rápidas</span>
+                    <div class="presets-list">
+                        <button type="button" class="preset-chip preset-atividades"
+                                data-preset='{"ultimos_meses":"6","ordenar_por":"participacoes","ordem":"desc","limite":"5"}'>
+                            Top 5 com mais participações (últimos 6 meses)
+                        </button>
+                        <button type="button" class="preset-chip preset-atividades"
+                                data-preset='{"ordenar_por":"media_notas_recreadores","ordem":"desc","limite":"5"}'>
+                            Top 5 com maiores médias dos recreadores
+                        </button>
+                        <button type="button" class="preset-chip preset-atividades"
+                                data-preset='{"ordenar_por":"materiais","ordem":"desc","limite":"5"}'>
+                            Top 5 que exigem mais materiais
+                        </button>
+                        <button type="button" class="preset-chip preset-atividades"
+                                data-preset='{"local_atividade":"Biblioteca","data_inicio":"2026-01-01","data_fim":"2026-12-31"}'>
+                            Atividades na Biblioteca em 2026
+                        </button>
+                    </div>
+                </div>
+
+                <form id="form-atividades">
+                    <div class="filters-grid">
+                        <div class="field">
+                            <label for="atv-ultimos-meses">Últimos meses</label>
+                            <input type="number" id="atv-ultimos-meses" name="ultimos_meses" min="1" placeholder="Ex: 6">
+                        </div>
+                        <div class="field">
+                            <label for="atv-local">Local da atividade</label>
+                            <input type="text" id="atv-local" name="local_atividade" list="lista-locais" placeholder="Ex: Biblioteca">
+                            <datalist id="lista-locais">
+                                <option value="Quadra Poliesportiva"></option>
+                                <option value="Sala de Artes"></option>
+                                <option value="Auditório"></option>
+                                <option value="Pátio Coberto"></option>
+                                <option value="Sala de Jogos"></option>
+                                <option value="Sala de Música"></option>
+                                <option value="Jardim da Escola"></option>
+                                <option value="Biblioteca"></option>
+                                <option value="Salão Multiuso"></option>
+                                <option value="Sala de Multimeios"></option>
+                            </datalist>
+                        </div>
+                        <div class="field">
+                            <label for="atv-data-inicio">Data inicial</label>
+                            <input type="date" id="atv-data-inicio" name="data_inicio">
+                        </div>
+                        <div class="field">
+                            <label for="atv-data-fim">Data final</label>
+                            <input type="date" id="atv-data-fim" name="data_fim">
+                        </div>
+                        <div class="field">
+                            <label for="atv-ordenar-por">Ordenar por</label>
+                            <select id="atv-ordenar-por" name="ordenar_por">
+                                <option value="participacoes">Qtd. de participações</option>
+                                <option value="media_notas_recreadores">Média de notas dos recreadores</option>
+                                <option value="materiais">Qtd. de materiais</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="atv-ordem">Ordem</label>
+                            <select id="atv-ordem" name="ordem">
+                                <option value="desc">Decrescente</option>
+                                <option value="asc">Crescente</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="atv-limite">Limite</label>
+                            <input type="number" id="atv-limite" name="limite" min="1" placeholder="Todas">
+                        </div>
+                    </div>
+
+                    <div class="actions-row">
+                        <button type="submit" class="btn btn-primary">Consultar</button>
+                        <button type="button" id="reset-atividades" class="btn btn-secondary">Limpar filtros</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="results-header">
+                    <h2>Resultados</h2>
+                    <span id="count-atividades" class="results-count">0 registros</span>
+                </div>
+                <div id="table-atividades"></div>
+            </div>
+        </section>
+
+        <!-- DOMÍNIO 9: DISCIPLINAS E OFERECIMENTOS -->
+        <section class="domain-panel" data-panel="disciplinas">
+            <div class="card">
+                <div class="card-title-row">
+                    <h2>Disciplinas e Oferecimentos (Aulas)</h2>
+                </div>
+                <p class="card-description">
+                    Acompanhe oferecimentos por período e professor responsável, quantidade de matriculados, média geral e alunos abaixo da média.
+                </p>
+
+                <div class="presets-box">
+                    <span class="presets-label">Perguntas rápidas</span>
+                    <div class="presets-list">
+                        <button type="button" class="preset-chip preset-disciplinas"
+                                data-preset='{"ordenar_por":"media_notas","ordem":"desc","limite":"5"}'>
+                            5 disciplinas com maiores médias
+                        </button>
+                        <button type="button" class="preset-chip preset-disciplinas"
+                                data-preset='{"ordenar_por":"matriculados","ordem":"desc","limite":"5"}'>
+                            5 disciplinas com mais matriculados
+                        </button>
+                        <button type="button" class="preset-chip preset-disciplinas"
+                                data-preset='{"ordenar_por":"abaixo_media","ordem":"desc","limite":"5"}'>
+                            Mais alunos abaixo da média
+                        </button>
+                        <button type="button" class="preset-chip preset-disciplinas"
+                                data-preset='{"data_inicio":"2026-01-01","data_fim":"2026-12-31","ordenar_por":"data_inicio","ordem":"desc"}'>
+                            Oferecimentos em 2026
+                        </button>
+                    </div>
+                </div>
+
+                <form id="form-disciplinas">
+                    <div class="filters-grid">
+                        <div class="field">
+                            <label for="dis-data-inicio">Data inicial do oferecimento</label>
+                            <input type="date" id="dis-data-inicio" name="data_inicio">
+                        </div>
+                        <div class="field">
+                            <label for="dis-data-fim">Data final do oferecimento</label>
+                            <input type="date" id="dis-data-fim" name="data_fim">
+                        </div>
+                        <div class="field">
+                            <label for="dis-professor">Professor responsável</label>
+                            <input type="text" id="dis-professor" name="professor" placeholder="Nome ou trecho (ex: Marina)">
+                        </div>
+                        <div class="field">
+                            <label for="dis-ordenar-por">Ordenar por</label>
+                            <select id="dis-ordenar-por" name="ordenar_por">
+                                <option value="media_notas">Média das notas</option>
+                                <option value="matriculados">Qtd. de matriculados</option>
+                                <option value="abaixo_media">Qtd. abaixo da média</option>
+                                <option value="data_inicio">Data de início</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="dis-ordem">Ordem</label>
+                            <select id="dis-ordem" name="ordem">
+                                <option value="desc">Decrescente</option>
+                                <option value="asc">Crescente</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="dis-limite">Limite</label>
+                            <input type="number" id="dis-limite" name="limite" min="1" placeholder="Todos">
+                        </div>
+                    </div>
+
+                    <div class="actions-row">
+                        <button type="submit" class="btn btn-primary">Consultar</button>
+                        <button type="button" id="reset-disciplinas" class="btn btn-secondary">Limpar filtros</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="results-header">
+                    <h2>Resultados</h2>
+                    <span id="count-disciplinas" class="results-count">0 registros</span>
+                </div>
+                <div id="table-disciplinas"></div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

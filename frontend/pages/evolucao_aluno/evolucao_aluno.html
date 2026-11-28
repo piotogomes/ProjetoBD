@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evolução do Aluno - Projeto Girassol</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='components/header/header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/styles/app.css') }}">
+    <script src="{{ url_for('static', filename='assets/js/consultas.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='pages/evolucao_aluno/script.js') }}" defer></script>
+</head>
+<body>
+    {% include "components/header/header.html" %}
+
+    <main class="page-container">
+        <div class="page-header">
+            <div>
+                <h1>Evolução do Aluno</h1>
+                <p class="page-subtitle">
+                    Consultas dinâmicas de engajamento, desempenho pedagógico, necessidades especiais e interesses.
+                </p>
+            </div>
+            <span class="access-pill">Acesso: Coordenadores, Professores e Recreadores</span>
+        </div>
+
+        <div class="domain-tabs" role="tablist">
+            <button type="button" class="tab-btn active" data-tab="engajamento">1. Engajamento e Moedas</button>
+            <button type="button" class="tab-btn" data-tab="pedagogico">2. Desempenho Pedagógico</button>
+            <button type="button" class="tab-btn" data-tab="necessidades">3. Necessidades e Contatos</button>
+            <button type="button" class="tab-btn" data-tab="interesses">4. Interesses nas Atividades</button>
+        </div>
+
+        <!-- DOMÍNIO 1: ENGAJAMENTO E MOEDAS -->
+        <section class="domain-panel active" data-panel="engajamento">
+            <div class="card">
+                <div class="card-title-row">
+                    <h2>Engajamento e Moedas (Girassóis)</h2>
+                </div>
+                <p class="card-description">
+                    Analise o total de girassóis recebidos, quantidade de participações e média por atividade dos alunos.
+                </p>
+
+                <div class="presets-box">
+                    <span class="presets-label">Perguntas rápidas</span>
+                    <div class="presets-list">
+                        <button type="button" class="preset-chip preset-engajamento"
+                                data-preset='{"ultimos_meses":"6","ordenar_por":"girassois","ordem":"desc","limite":"10"}'>
+                            Mais girassóis (últimos 6 meses)
+                        </button>
+                        <button type="button" class="preset-chip preset-engajamento"
+                                data-preset='{"ultimos_meses":"6","ordenar_por":"girassois","ordem":"asc","limite":"10"}'>
+                            Menos girassóis (últimos 6 meses)
+                        </button>
+                        <button type="button" class="preset-chip preset-engajamento"
+                                data-preset='{"tipo_impacto":"maior","top_atividades":"3","ordenar_por":"participacoes","ordem":"desc"}'>
+                            Mais participações nas 3 atividades de maior impacto
+                        </button>
+                        <button type="button" class="preset-chip preset-engajamento"
+                                data-preset='{"tipo_impacto":"menor","top_atividades":"3","ordenar_por":"participacoes","ordem":"desc"}'>
+                            Mais participações nas 3 atividades de menor impacto
+                        </button>
+                        <button type="button" class="preset-chip preset-engajamento"
+                                data-preset='{"ordenar_por":"media_atividade","ordem":"desc","limite":"10"}'>
+                            Maior média por atividade
+                        </button>
+                        <button type="button" class="preset-chip preset-engajamento"
+                                data-preset='{"ordenar_por":"media_atividade","ordem":"asc","limite":"10"}'>
+                            Menor média por atividade
+                        </button>
+                    </div>
+                </div>
+
+                <form id="form-engajamento">
+                    <div class="filters-grid">
+                        <div class="field">
+                            <label for="eng-ultimos-meses">Últimos meses</label>
+                            <input type="number" id="eng-ultimos-meses" name="ultimos_meses" min="1" placeholder="Ex: 6">
+                        </div>
+                        <div class="field">
+                            <label for="eng-tipo-impacto">Impacto da atividade</label>
+                            <select id="eng-tipo-impacto" name="tipo_impacto">
+                                <option value="">Todas as atividades</option>
+                                <option value="maior">Maior impacto (mais girassóis)</option>
+                                <option value="menor">Menor impacto (menos girassóis)</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="eng-top-atividades">Top X atividades (impacto)</label>
+                            <input type="number" id="eng-top-atividades" name="top_atividades" min="1" placeholder="Ex: 3">
+                        </div>
+                        <div class="field">
+                            <label for="eng-ordenar-por">Ordenar por</label>
+                            <select id="eng-ordenar-por" name="ordenar_por">
+                                <option value="girassois">Total de girassóis</option>
+                                <option value="participacoes">Qtd. de participações</option>
+                                <option value="media_atividade">Média por atividade</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="eng-ordem">Ordem</label>
+                            <select id="eng-ordem" name="ordem">
+                                <option value="desc">Decrescente</option>
+                                <option value="asc">Crescente</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="eng-limite">Limite de alunos</label>
+                            <input type="number" id="eng-limite" name="limite" min="1" placeholder="Todos">
+                        </div>
+                    </div>
+
+                    <div class="actions-row">
+                        <button type="submit" class="btn btn-primary">Consultar</button>
+                        <button type="button" id="reset-engajamento" class="btn btn-secondary">Limpar filtros</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="results-header">
+                    <h2>Resultados</h2>
+                    <span id="count-engajamento" class="results-count">0 registros</span>
+                </div>
+                <div id="table-engajamento"></div>
+            </div>
+        </section>
+
+        <!-- DOMÍNIO 2: DESEMPENHO PEDAGÓGICO -->
+        <section class="domain-panel" data-panel="pedagogico">
+            <div class="card">
+                <div class="card-title-row">
+                    <h2>Desempenho Pedagógico</h2>
+                </div>
+                <p class="card-description">
+                    Consulte notas dos alunos nas disciplinas matriculadas e identifique quem está abaixo da média.
+                </p>
+
+                <div class="presets-box">
+                    <span class="presets-label">Perguntas rápidas</span>
+                    <div class="presets-list">
+                        <button type="button" class="preset-chip preset-pedagogico"
+                                data-preset='{"ordem":"desc","limite":"10"}'>
+                            10 maiores notas
+                        </button>
+                        <button type="button" class="preset-chip preset-pedagogico"
+                                data-preset='{"ordem":"asc","limite":"10"}'>
+                            10 menores notas
+                        </button>
+                        <button type="button" class="preset-chip preset-pedagogico"
+                                data-preset='{"disciplina":"Matemática","abaixo_media":true,"ordem":"asc"}'>
+                            Abaixo da média em Matemática
+                        </button>
+                        <button type="button" class="preset-chip preset-pedagogico"
+                                data-preset='{"abaixo_media":true,"qtd_disciplinas_abaixo":"2","ordem":"asc"}'>
+                            Abaixo da média em 2 disciplinas
+                        </button>
+                    </div>
+                </div>
+
+                <form id="form-pedagogico">
+                    <div class="filters-grid">
+                        <div class="field">
+                            <label for="ped-disciplina">Disciplina</label>
+                            <input type="text" id="ped-disciplina" name="disciplina" list="lista-disciplinas" placeholder="Ex: Matemática">
+                            <datalist id="lista-disciplinas">
+                                <option value="Matemática"></option>
+                                <option value="Língua Portuguesa"></option>
+                                <option value="Ciências"></option>
+                                <option value="História"></option>
+                                <option value="Geografia"></option>
+                                <option value="Inglês"></option>
+                                <option value="Artes"></option>
+                                <option value="Informática Básica"></option>
+                                <option value="Robótica Educacional"></option>
+                                <option value="Redação e Produção de Texto"></option>
+                                <option value="Espanhol"></option>
+                            </datalist>
+                        </div>
+                        <div class="field">
+                            <label for="ped-qtd-abaixo">Qtd. de disciplinas abaixo da média</label>
+                            <input type="number" id="ped-qtd-abaixo" name="qtd_disciplinas_abaixo" min="1" placeholder="Ex: 2">
+                        </div>
+                        <div class="field">
+                            <label for="ped-ordem">Ordem das notas</label>
+                            <select id="ped-ordem" name="ordem">
+                                <option value="desc">Maiores primeiro</option>
+                                <option value="asc">Menores primeiro</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="ped-limite">Limite de resultados</label>
+                            <input type="number" id="ped-limite" name="limite" min="1" placeholder="Todos">
+                        </div>
+                        <div class="field checkbox-field">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="ped-abaixo-media" name="abaixo_media">
+                                Somente abaixo da média
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="actions-row">
+                        <button type="submit" class="btn btn-primary">Consultar</button>
+                        <button type="button" id="reset-pedagogico" class="btn btn-secondary">Limpar filtros</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="results-header">
+                    <h2>Resultados</h2>
+                    <span id="count-pedagogico" class="results-count">0 registros</span>
+                </div>
+                <div id="table-pedagogico"></div>
+            </div>
+        </section>
+
+        <!-- DOMÍNIO 3: NECESSIDADES ESPECIAIS E CONTATOS -->
+        <section class="domain-panel" data-panel="necessidades">
+            <div class="card">
+                <div class="card-title-row">
+                    <h2>Necessidades Especiais e Contatos</h2>
+                </div>
+                <p class="card-description">
+                    Visualize os alunos com mais contatos registrados com responsáveis e maiores quantidades de cuidados especiais.
+                </p>
+
+                <div class="presets-box">
+                    <span class="presets-label">Perguntas rápidas</span>
+                    <div class="presets-list">
+                        <button type="button" class="preset-chip preset-necessidades"
+                                data-preset='{"ordenar_por":"contatos","limite":"10"}'>
+                            Top 10 com mais contatos com responsáveis
+                        </button>
+                        <button type="button" class="preset-chip preset-necessidades"
+                                data-preset='{"ordenar_por":"necessidades","limite":"10"}'>
+                            Top 10 com mais necessidades especiais
+                        </button>
+                    </div>
+                </div>
+
+                <form id="form-necessidades">
+                    <div class="filters-grid">
+                        <div class="field">
+                            <label for="nec-ordenar-por">Ordenar por</label>
+                            <select id="nec-ordenar-por" name="ordenar_por">
+                                <option value="contatos">Quantidade de contatos com responsáveis</option>
+                                <option value="necessidades">Quantidade de necessidades especiais</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="nec-limite">Limite de alunos</label>
+                            <input type="number" id="nec-limite" name="limite" min="1" placeholder="Todos">
+                        </div>
+                    </div>
+
+                    <div class="actions-row">
+                        <button type="submit" class="btn btn-primary">Consultar</button>
+                        <button type="button" id="reset-necessidades" class="btn btn-secondary">Limpar filtros</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="results-header">
+                    <h2>Resultados</h2>
+                    <span id="count-necessidades" class="results-count">0 registros</span>
+                </div>
+                <div id="table-necessidades"></div>
+            </div>
+        </section>
+
+        <!-- DOMÍNIO 4: INTERESSES NAS ATIVIDADES -->
+        <section class="domain-panel" data-panel="interesses">
+            <div class="card">
+                <div class="card-title-row">
+                    <h2>Interesses nas Atividades</h2>
+                </div>
+                <p class="card-description">
+                    Encontre alunos por interesse cadastrado e identifique aqueles que ainda não participam da atividade correspondente.
+                </p>
+
+                <div class="presets-box">
+                    <span class="presets-label">Perguntas rápidas</span>
+                    <div class="presets-list">
+                        <button type="button" class="preset-chip preset-interesses"
+                                data-preset='{"interesse":"Futebol","ordem":"asc"}'>
+                            Alunos com interesse em Futebol
+                        </button>
+                        <button type="button" class="preset-chip preset-interesses"
+                                data-preset='{"interesse":"Dança","cod_atividade":"ATV09","apenas_nao_participantes":true,"ordem":"asc"}'>
+                            Interesse em Dança que não participam da Oficina de Dança
+                        </button>
+                        <button type="button" class="preset-chip preset-interesses"
+                                data-preset='{"interesse":"Música","cod_atividade":"ATV06","apenas_nao_participantes":true,"ordem":"asc"}'>
+                            Interesse em Música que não participam da Musicalização
+                        </button>
+                    </div>
+                </div>
+
+                <form id="form-interesses">
+                    <div class="filters-grid">
+                        <div class="field">
+                            <label for="int-interesse">Interesse</label>
+                            <select id="int-interesse" name="interesse">
+                                <option value="">Todos os interesses</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="int-atividade">Atividade relacionada</label>
+                            <select id="int-atividade" name="cod_atividade">
+                                <option value="">Nenhuma (não filtrar por atividade)</option>
+                                <option value="ATV01">ATV01 — Futebol Recreativo</option>
+                                <option value="ATV02">ATV02 — Oficina de Pintura</option>
+                                <option value="ATV03">ATV03 — Teatro Infantil</option>
+                                <option value="ATV04">ATV04 — Capoeira</option>
+                                <option value="ATV05">ATV05 — Jogos de Tabuleiro</option>
+                                <option value="ATV06">ATV06 — Musicalização</option>
+                                <option value="ATV07">ATV07 — Horta Comunitária</option>
+                                <option value="ATV08">ATV08 — Contação de Histórias</option>
+                                <option value="ATV09">ATV09 — Oficina de Dança</option>
+                                <option value="ATV10">ATV10 — Oficina de Fotografia</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="int-ordem">Ordem (nome)</label>
+                            <select id="int-ordem" name="ordem">
+                                <option value="asc">A → Z</option>
+                                <option value="desc">Z → A</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="int-limite">Limite</label>
+                            <input type="number" id="int-limite" name="limite" min="1" placeholder="Todos">
+                        </div>
+                        <div class="field checkbox-field">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="int-nao-participa" name="apenas_nao_participantes">
+                                Apenas quem não participa da atividade
+                            </label>
+                            <span class="field-hint">Aplicado quando uma atividade está selecionada.</span>
+                        </div>
+                    </div>
+
+                    <div class="actions-row">
+                        <button type="submit" class="btn btn-primary">Consultar</button>
+                        <button type="button" id="reset-interesses" class="btn btn-secondary">Limpar filtros</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="results-header">
+                    <h2>Resultados</h2>
+                    <span id="count-interesses" class="results-count">0 registros</span>
+                </div>
+                <div id="table-interesses"></div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

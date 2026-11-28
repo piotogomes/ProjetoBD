@@ -1,16 +1,56 @@
-<!-- header.html -->
-<html lang="pt-BR">
+<header class="topbar">
+    <div class="topbar-inner">
+        <a href="{{ url_for('home') }}" class="brand">
+            <span class="brand-icon" aria-hidden="true">🌻</span>
+            <span class="brand-text">
+                <strong>Projeto Girassol</strong>
+                <small>Gestão Educacional</small>
+            </span>
+        </a>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/components/header/header.css">
-</head>
-<nav>
-    <a href="/">Início</a>
-    <a href="/pages/impressaoPronta/impressaoPronta.html">Impressões Prontas</a>
-    <a href="/pages/impressao/impressao.html">Impressao</a>
-    <a href="/pages/livro/livro.html">Livros</a>
-</nav>
+        <nav class="main-nav" aria-label="Navegação principal">
+            <a href="{{ url_for('home') }}"
+               class="nav-link {% if active_page == 'home' %}active{% endif %}">
+                Início
+            </a>
 
-</html>
+            <a href="{{ url_for('evolucao_aluno') }}"
+               class="nav-link {% if active_page == 'evolucao_aluno' %}active{% endif %}">
+                Evolução do Aluno
+            </a>
+
+            <a href="{{ url_for('atividades_aulas') }}"
+               class="nav-link {% if active_page == 'atividades_aulas' %}active{% endif %}">
+                Atividades e Aulas
+            </a>
+
+            {% if session.get("perfil") == "COORDENADOR" %}
+                <a href="{{ url_for('funcionarios') }}"
+                   class="nav-link {% if active_page == 'funcionarios' %}active{% endif %}">
+                    Funcionários
+                </a>
+            {% endif %}
+
+            {% if session.get("perfil") in ("COORDENADOR", "RECREADOR") %}
+                <a href="{{ url_for('educacao_financeira') }}"
+                   class="nav-link {% if active_page == 'educacao_financeira' %}active{% endif %}">
+                    Educação Financeira
+                </a>
+            {% endif %}
+        </nav>
+
+        <div class="user-area">
+            <div class="user-info">
+                <span class="user-name">{{ session.get("user_name", "Usuário") }}</span>
+                <span class="role-badge role-{{ (session.get('perfil') or '')|lower }}">
+                    {{ session.get("perfil", "") }}
+                </span>
+            </div>
+
+            <form action="{{ url_for('auth.logout') }}" method="POST" class="logout-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn-logout">Sair</button>
+            </form>
+        </div>
+    </div>
+</header>

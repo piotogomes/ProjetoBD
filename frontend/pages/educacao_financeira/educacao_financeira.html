@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educação Financeira - Projeto Girassol</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='components/header/header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/styles/app.css') }}">
+    <script src="{{ url_for('static', filename='assets/js/consultas.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='pages/educacao_financeira/script.js') }}" defer></script>
+</head>
+<body>
+    {% include "components/header/header.html" %}
+
+    <main class="page-container">
+        <div class="page-header">
+            <div>
+                <h1>Educação Financeira</h1>
+                <p class="page-subtitle">
+                    Consultas sobre rendimento individual de moedas Girassol e distribuição geral no projeto.
+                </p>
+            </div>
+            <span class="access-pill">Acesso: Coordenadores e Recreadores</span>
+        </div>
+
+        <div class="domain-tabs" role="tablist">
+            <button type="button" class="tab-btn active" data-tab="individual">1. Rendimento Individual</button>
+            <button type="button" class="tab-btn" data-tab="distribuicao">2. Distribuição de Moedas no Projeto</button>
+        </div>
+
+        <!-- DOMÍNIO 10: RENDIMENTO INDIVIDUAL -->
+        <section class="domain-panel active" data-panel="individual">
+            <div class="card">
+                <div class="card-title-row">
+                    <h2>Rendimento Individual do Aluno</h2>
+                </div>
+                <p class="card-description">
+                    Acompanhe quantos girassóis cada aluno ganhou por atividade e sua média por participação em um período.
+                </p>
+
+                <div class="presets-box">
+                    <span class="presets-label">Perguntas rápidas</span>
+                    <div class="presets-list">
+                        <button type="button" class="preset-chip preset-individual"
+                                data-preset='{"ordenar_por":"total_girassois","ordem":"desc","limite":"15"}'>
+                            Atividades que mais renderam girassóis
+                        </button>
+                        <button type="button" class="preset-chip preset-individual"
+                                data-preset='{"aluno":"Lucas","ultimos_meses":"6","ordenar_por":"total_girassois","ordem":"desc"}'>
+                            Rendimento de "Lucas" (últimos 6 meses)
+                        </button>
+                        <button type="button" class="preset-chip preset-individual"
+                                data-preset='{"data_inicio":"2026-01-01","data_fim":"2026-12-31","ordenar_por":"media_girassois","ordem":"desc","limite":"15"}'>
+                            Maior média por participação em 2026
+                        </button>
+                    </div>
+                </div>
+
+                <form id="form-individual">
+                    <div class="filters-grid">
+                        <div class="field">
+                            <label for="ind-aluno">Nome do aluno</label>
+                            <input type="text" id="ind-aluno" name="aluno" placeholder="Nome ou trecho (ex: Lucas)">
+                        </div>
+                        <div class="field">
+                            <label for="ind-ultimos-meses">Últimos meses</label>
+                            <input type="number" id="ind-ultimos-meses" name="ultimos_meses" min="1" placeholder="Ex: 6">
+                        </div>
+                        <div class="field">
+                            <label for="ind-data-inicio">Data inicial</label>
+                            <input type="date" id="ind-data-inicio" name="data_inicio">
+                        </div>
+                        <div class="field">
+                            <label for="ind-data-fim">Data final</label>
+                            <input type="date" id="ind-data-fim" name="data_fim">
+                        </div>
+                        <div class="field">
+                            <label for="ind-ordenar-por">Ordenar por</label>
+                            <select id="ind-ordenar-por" name="ordenar_por">
+                                <option value="total_girassois">Total de girassóis</option>
+                                <option value="media_girassois">Média de girassóis</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="ind-ordem">Ordem</label>
+                            <select id="ind-ordem" name="ordem">
+                                <option value="desc">Decrescente</option>
+                                <option value="asc">Crescente</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="ind-limite">Limite</label>
+                            <input type="number" id="ind-limite" name="limite" min="1" placeholder="Todos">
+                        </div>
+                    </div>
+
+                    <div class="actions-row">
+                        <button type="submit" class="btn btn-primary">Consultar</button>
+                        <button type="button" id="reset-individual" class="btn btn-secondary">Limpar filtros</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="results-header">
+                    <h2>Resultados</h2>
+                    <span id="count-individual" class="results-count">0 registros</span>
+                </div>
+                <div class="summary-strip" id="summary-individual"></div>
+                <div id="table-individual"></div>
+            </div>
+        </section>
+
+        <!-- DOMÍNIO 11: DISTRIBUIÇÃO DE MOEDAS NO PROJETO -->
+        <section class="domain-panel" data-panel="distribuicao">
+            <div class="card">
+                <div class="card-title-row">
+                    <h2>Distribuição de Moedas no Projeto</h2>
+                </div>
+                <p class="card-description">
+                    Veja como os girassóis estão distribuídos entre atividades e faixas de escolaridade em um período.
+                </p>
+
+                <div class="presets-box">
+                    <span class="presets-label">Perguntas rápidas</span>
+                    <div class="presets-list">
+                        <button type="button" class="preset-chip preset-distribuicao"
+                                data-preset='{"ultimos_meses":"6","ordenar_por":"total_girassois","ordem":"desc","limite":"10"}'>
+                            Top 10 que mais distribuíram (últimos 6 meses)
+                        </button>
+                        <button type="button" class="preset-chip preset-distribuicao"
+                                data-preset='{"data_inicio":"2026-01-01","data_fim":"2026-12-31","ordenar_por":"total_girassois","ordem":"desc"}'>
+                            Distribuição por escolaridade em 2026
+                        </button>
+                        <button type="button" class="preset-chip preset-distribuicao"
+                                data-preset='{"ultimos_meses":"12","ordenar_por":"media_girassois","ordem":"desc","limite":"10"}'>
+                            Maiores médias (últimos 12 meses)
+                        </button>
+                    </div>
+                </div>
+
+                <form id="form-distribuicao">
+                    <div class="filters-grid">
+                        <div class="field">
+                            <label for="dist-ultimos-meses">Últimos meses</label>
+                            <input type="number" id="dist-ultimos-meses" name="ultimos_meses" min="1" placeholder="Ex: 6">
+                        </div>
+                        <div class="field">
+                            <label for="dist-data-inicio">Data inicial</label>
+                            <input type="date" id="dist-data-inicio" name="data_inicio">
+                        </div>
+                        <div class="field">
+                            <label for="dist-data-fim">Data final</label>
+                            <input type="date" id="dist-data-fim" name="data_fim">
+                        </div>
+                        <div class="field">
+                            <label for="dist-ordenar-por">Ordenar por</label>
+                            <select id="dist-ordenar-por" name="ordenar_por">
+                                <option value="total_girassois">Total de girassóis</option>
+                                <option value="media_girassois">Média de girassóis</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="dist-ordem">Ordem</label>
+                            <select id="dist-ordem" name="ordem">
+                                <option value="desc">Decrescente</option>
+                                <option value="asc">Crescente</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="dist-limite">Limite</label>
+                            <input type="number" id="dist-limite" name="limite" min="1" placeholder="Todos">
+                        </div>
+                    </div>
+
+                    <div class="actions-row">
+                        <button type="submit" class="btn btn-primary">Consultar</button>
+                        <button type="button" id="reset-distribuicao" class="btn btn-secondary">Limpar filtros</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="results-header">
+                    <h2>Resultados</h2>
+                    <span id="count-distribuicao" class="results-count">0 registros</span>
+                </div>
+                <div class="summary-strip" id="summary-distribuicao"></div>
+                <div id="table-distribuicao"></div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

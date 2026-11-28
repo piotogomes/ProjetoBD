@@ -69,31 +69,66 @@ def index():
 @login_required
 def home():
 
-    return render_template("pages/home/home.html")
+    return render_template("pages/home/home.html", active_page="home")
 
 
-# EXEMPLO: SOMENTE COORDENADOR
+# REQUISITO 1: EVOLUÇÃO DO ALUNO (Coordenadores, Professores e Recreadores)
+@app.route("/evolucao-aluno")
+@perfil_required("COORDENADOR", "PROFESSOR", "RECREADOR")
+def evolucao_aluno():
+
+    return render_template(
+        "pages/evolucao_aluno/evolucao_aluno.html",
+        active_page="evolucao_aluno"
+    )
+
+
+# REQUISITO 2: DESEMPENHO DE FUNCIONÁRIOS (Somente Coordenador)
 @app.route("/funcionarios")
 @perfil_required("COORDENADOR")
 def funcionarios():
 
-    return "Página de funcionários"
+    return render_template(
+        "pages/funcionarios/funcionarios.html",
+        active_page="funcionarios"
+    )
 
 
-# EXEMPLO: COORDENADOR E PROFESSOR
+# REQUISITO 3: ATIVIDADES E AULAS (Coordenadores, Professores e Recreadores)
+@app.route("/atividades-aulas")
+@perfil_required("COORDENADOR", "PROFESSOR", "RECREADOR")
+def atividades_aulas():
+
+    return render_template(
+        "pages/atividades_aulas/atividades_aulas.html",
+        active_page="atividades_aulas"
+    )
+
+
+# REQUISITO 4: EDUCAÇÃO FINANCEIRA (Coordenadores e Recreadores)
+@app.route("/educacao-financeira")
+@perfil_required("COORDENADOR", "RECREADOR")
+def educacao_financeira():
+
+    return render_template(
+        "pages/educacao_financeira/educacao_financeira.html",
+        active_page="educacao_financeira"
+    )
+
+
+# Rotas legadas redirecionam para Atividades e Aulas
 @app.route("/disciplinas")
 @perfil_required("COORDENADOR", "PROFESSOR")
 def disciplinas():
 
-    return "Página de disciplinas"
+    return redirect(url_for("atividades_aulas"))
 
 
-# EXEMPLO: COORDENADOR E RECREADOR
 @app.route("/atividades")
 @perfil_required("COORDENADOR", "RECREADOR")
 def atividades():
 
-    return "Página de atividades"
+    return redirect(url_for("atividades_aulas"))
 
 
 if __name__ == "__main__":

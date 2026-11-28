@@ -1,51 +1,101 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
-    <title>ProjetoBD - Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Início - Projeto Girassol</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='components/header/header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/styles/app.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='pages/home/style.css') }}">
 </head>
-
 <body>
+    {% include "components/header/header.html" %}
 
-    <h1>Bem-vindo, {{ session["user_name"] }}!</h1>
+    <main class="page-container">
+        <section class="hero-card">
+            <div class="hero-content">
+                <span class="hero-tag">Sistema de Acompanhamento · Projeto Girassol</span>
+                <h1>Olá, {{ session.get("user_name", "Usuário") }}!</h1>
+                <p>
+                    Você está conectado com o perfil
+                    <strong>{{ session.get("perfil", "") }}</strong>.
+                    Selecione abaixo um dos módulos liberados para o seu acesso para realizar consultas dinâmicas.
+                </p>
+            </div>
+        </section>
 
-    <p>
-        Perfil: {{ session["perfil"] }}
-    </p>
+        <section class="modules-grid" aria-label="Módulos disponíveis">
+            <a href="{{ url_for('evolucao_aluno') }}" class="module-card">
+                <div class="module-icon">🎓</div>
+                <div class="module-body">
+                    <h2>Evolução do Aluno</h2>
+                    <p>
+                        Acompanhe engajamento e moedas Girassol, desempenho pedagógico nas disciplinas,
+                        necessidades especiais, contatos com responsáveis e interesses em atividades.
+                    </p>
+                    <ul class="module-tags">
+                        <li>Engajamento e Moedas</li>
+                        <li>Desempenho Pedagógico</li>
+                        <li>Necessidades e Contatos</li>
+                        <li>Interesses</li>
+                    </ul>
+                </div>
+                <span class="module-cta">Acessar consultas →</span>
+            </a>
 
-    <nav>
+            <a href="{{ url_for('atividades_aulas') }}" class="module-card">
+                <div class="module-icon">🎨</div>
+                <div class="module-body">
+                    <h2>Atividades e Aulas</h2>
+                    <p>
+                        Analise o desempenho e a logística das atividades recreativas (participações, materiais e locais),
+                        além das disciplinas, oferecimentos e notas médias.
+                    </p>
+                    <ul class="module-tags">
+                        <li>Logística de Atividades</li>
+                        <li>Disciplinas e Oferecimentos</li>
+                    </ul>
+                </div>
+                <span class="module-cta">Acessar consultas →</span>
+            </a>
 
-        {% if session["perfil"] == "COORDENADOR" %}
+            {% if session.get("perfil") == "COORDENADOR" %}
+                <a href="{{ url_for('funcionarios') }}" class="module-card">
+                    <div class="module-icon">👥</div>
+                    <div class="module-body">
+                        <h2>Desempenho de Funcionários</h2>
+                        <p>
+                            Avalie o desempenho de recreadores e professores, notas atribuídas pela coordenação,
+                            média dos alunos e carga de trabalho da equipe.
+                        </p>
+                        <ul class="module-tags">
+                            <li>Recreadores</li>
+                            <li>Professores</li>
+                            <li>Carga de Trabalho</li>
+                        </ul>
+                    </div>
+                    <span class="module-cta">Acessar consultas →</span>
+                </a>
+            {% endif %}
 
-            <a href="/funcionarios">Funcionários</a>
-            <a href="/disciplinas">Disciplinas</a>
-            <a href="/atividades">Atividades</a>
-
-        {% elif session["perfil"] == "PROFESSOR" %}
-
-            <a href="/disciplinas">Disciplinas</a>
-
-        {% elif session["perfil"] == "RECREADOR" %}
-
-            <a href="/atividades">Atividades</a>
-
-        {% endif %}
-
-    </nav>
-
-    <form action="{{ url_for('auth.logout') }}" method="POST">
-
-        <input
-            type="hidden"
-            name="csrf_token"
-            value="{{ csrf_token() }}"
-        >
-
-        <button type="submit">Sair</button>
-
-    </form>
-
+            {% if session.get("perfil") in ("COORDENADOR", "RECREADOR") %}
+                <a href="{{ url_for('educacao_financeira') }}" class="module-card">
+                    <div class="module-icon">🌻</div>
+                    <div class="module-body">
+                        <h2>Educação Financeira</h2>
+                        <p>
+                            Consulte o rendimento individual de moedas Girassol por aluno e a distribuição
+                            geral de moedas no projeto por atividade e escolaridade.
+                        </p>
+                        <ul class="module-tags">
+                            <li>Rendimento Individual</li>
+                            <li>Distribuição de Moedas</li>
+                        </ul>
+                    </div>
+                    <span class="module-cta">Acessar consultas →</span>
+                </a>
+            {% endif %}
+        </section>
+    </main>
 </body>
 </html>
